@@ -1,16 +1,21 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Calendar, BookOpen, LogOut } from 'lucide-react';
 import JournalEditor from '@/components/JournalEditor';
 import JournalList from '@/components/JournalList';
 import CalendarSidebar from '@/components/CalendarSidebar';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const [activeView, setActiveView] = useState<'list' | 'create' | 'edit'>('list');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleCreateNew = () => {
     setSelectedJournal(null);
@@ -27,9 +32,24 @@ const Dashboard = () => {
     setSelectedJournal(null);
   };
 
-  const handleLogout = () => {
-    // TODO: Implement logout functionality
-    console.log('Logging out...');
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Logged out",
+        description: "You've been successfully logged out.",
+      });
+      
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong while logging out.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

@@ -12,9 +12,10 @@ import { ArrowLeft, Calendar as CalendarIcon, Plus, Trash2, Save } from 'lucide-
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Todo {
-  id: number;
+  id: string;
   task: string;
   completed: boolean;
 }
@@ -28,28 +29,48 @@ interface JournalEditorProps {
 
 const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorProps) => {
   const [content, setContent] = useState('');
+  const [title, setTitle] = useState('');
   const [date, setDate] = useState<Date>(selectedDate);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState('');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (journal) {
       setContent(journal.content || '');
-      setDate(journal.date || selectedDate);
-      setTodos(journal.todos || []);
+      setTitle(journal.title || '');
+      setDate(new Date(journal.entry_date) || selectedDate);
+      // Load todos for this journal
+      loadTodos(journal.id);
     } else {
       setContent('');
+      setTitle('');
       setDate(selectedDate);
       setTodos([]);
     }
   }, [journal, selectedDate]);
 
+  const loadTodos = async (journalId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('todos')
+        .select('*')
+        .eq('journal_id', journalId)
+        .order('created_at');
+
+      if (error) throw error;
+      setTodos(data || []);
+    } catch (error: any) {
+      console.error('Error loading todos:', error);
+    }
+  };
+
   const handleAddTodo = () => {
     if (newTodo.trim()) {
       const newTodoItem: Todo = {
-        id: Date.now(),
+        id: `temp-${Date.now()}`, // Temporary ID
         task: newTodo.trim(),
         completed: false,
       };
@@ -58,17 +79,17 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
     }
   };
 
-  const handleToggleTodo = (id: number) => {
+  const handleToggleTodo = (id: string) => {
     setTodos(todos.map(todo => 
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
   };
 
-  const handleDeleteTodo = (id: number) => {
+  const handleDeleteTodo = (id: string) => {
     setTodos(todos.filter(todo => todo.id !== id));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!content.trim()) {
       toast({
         title: "Content required",
@@ -78,19 +99,86 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
       return;
     }
 
-    // TODO: Save to Supabase
-    console.log('Saving journal entry:', {
-      content,
-      date,
-      todos,
-    });
+    setIsSaving(true);
 
-    toast({
-      title: "Journal saved",
-      description: "Your entry has been saved successfully.",
-    });
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
-    onSave();
+      let journalId = journal?.id;
+
+      // Save or update journal entry
+      if (journal) {
+        const { error } = await supabase
+          .from('journals')
+          .update({
+            title: title.trim() || null,
+            content: content.trim(),
+            entry_date: format(date, 'yyyy-MM-dd'),
+          })
+          .eq('id', journal.id);
+
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase
+          .from('journals')
+          .insert({
+            user_id: user.id,
+            title: title.trim() || null,
+            content: content.trim(),
+            entry_date: format(date, 'yyyy-MM-dd'),
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        journalId = data.id;
+      }
+
+      // Handle todos
+      if (journalId) {
+        // Delete existing todos if updating
+        if (journal) {
+          await supabase
+            .from('todos')
+            .delete()
+            .eq('journal_id', journalId);
+        }
+
+        // Insert new todos
+        if (todos.length > 0) {
+          const todosToInsert = todos.map(todo => ({
+            user_id: user.id,
+            journal_id: journalId,
+            task: todo.task,
+            completed: todo.completed,
+            entry_date: format(date, 'yyyy-MM-dd'),
+          }));
+
+          const { error } = await supabase
+            .from('todos')
+            .insert(todosToInsert);
+
+          if (error) throw error;
+        }
+      }
+
+      toast({
+        title: "Journal saved",
+        description: "Your entry has been saved successfully.",
+      });
+
+      onSave();
+    } catch (error: any) {
+      console.error('Error saving journal:', error);
+      toast({
+        title: "Error saving journal",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -111,10 +199,11 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
         
         <Button
           onClick={handleSave}
+          disabled={isSaving}
           className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Save className="h-4 w-4 mr-2" />
-          Save Entry
+          {isSaving ? 'Saving...' : 'Save Entry'}
         </Button>
       </div>
 
@@ -151,10 +240,24 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
                       }
                     }}
                     initialFocus
-                    className={cn("p-3 pointer-events-auto")}
                   />
                 </PopoverContent>
               </Popover>
+            </CardContent>
+          </Card>
+
+          {/* Title */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Title (Optional)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Input
+                placeholder="Give your entry a title..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="border-gray-200 focus:border-blue-500"
+              />
             </CardContent>
           </Card>
 
