@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,7 +58,7 @@ const Index = () => {
           description: "You've been successfully logged in.",
         });
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -69,10 +68,20 @@ const Index = () => {
         
         if (error) throw error;
         
-        toast({
-          title: "Account created!",
-          description: "Please check your email to confirm your account.",
-        });
+        // Since email confirmation is disabled, the user should be logged in immediately
+        if (data.user && data.session) {
+          toast({
+            title: "Account created!",
+            description: "Welcome to Daily Journal! You're now logged in.",
+          });
+          // Navigation will be handled by the auth state change listener
+        } else {
+          toast({
+            title: "Account created!",
+            description: "You can now sign in with your credentials.",
+          });
+          setIsLogin(true); // Switch to login mode
+        }
       }
     } catch (error: any) {
       toast({
