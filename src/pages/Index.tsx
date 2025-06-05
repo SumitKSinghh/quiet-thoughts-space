@@ -1,14 +1,25 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React from 'react';
+import Login from './Login';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  // TODO: Add authentication state management
+  // For now, show login page. After Supabase integration,
+  // this will check auth state and show Dashboard or Login accordingly
+  
+  const isAuthenticated = false; // This will be managed by Supabase auth
+
+  if (isAuthenticated) {
+    // Import Dashboard dynamically when needed
+    const Dashboard = React.lazy(() => import('./Dashboard'));
+    return (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <Dashboard />
+      </React.Suspense>
+    );
+  }
+
+  return <Login />;
 };
 
 export default Index;
