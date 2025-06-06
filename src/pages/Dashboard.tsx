@@ -7,6 +7,7 @@ import { Plus, Calendar, BookOpen, LogOut } from 'lucide-react';
 import JournalEditor from '@/components/JournalEditor';
 import JournalList from '@/components/JournalList';
 import CalendarSidebar from '@/components/CalendarSidebar';
+import TodoSidebar from '@/components/TodoSidebar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -86,17 +87,20 @@ const Dashboard = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <CalendarSidebar 
-              selectedDate={selectedDate}
-              onDateSelect={setSelectedDate}
-            />
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+          {/* Left Sidebar - Calendar */}
+          <div className="lg:col-span-2">
+            <div className="space-y-6">
+              <CalendarSidebar 
+                selectedDate={selectedDate}
+                onDateSelect={setSelectedDate}
+              />
+              <TodoSidebar />
+            </div>
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-4">
             {activeView === 'list' && (
               <JournalList
                 selectedDate={selectedDate}
