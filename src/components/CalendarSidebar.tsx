@@ -98,10 +98,10 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Quick Date Selection */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center">
             <CalendarDays className="h-5 w-5 mr-2 text-blue-600" />
             Quick Access
@@ -126,7 +126,7 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
 
       {/* Calendar */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-4">
           <CardTitle 
             className="text-lg flex items-center justify-between cursor-pointer"
             onClick={() => setShowCalendar(!showCalendar)}
@@ -145,15 +145,36 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
         </CardHeader>
         
         {showCalendar && (
-          <CardContent>
+          <CardContent className="p-4">
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={(date) => date && onDateSelect(date)}
-              className="rounded-md border"
+              className="w-full border-0 p-0"
               classNames={{
-                day_selected: "bg-blue-600 text-white hover:bg-blue-700",
+                months: "flex w-full",
+                month: "w-full",
+                caption: "flex justify-center pt-1 relative items-center mb-4",
+                caption_label: "text-sm font-medium",
+                nav: "space-x-1 flex items-center",
+                nav_button: cn(
+                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border border-input hover:bg-accent hover:text-accent-foreground"
+                ),
+                nav_button_previous: "absolute left-1",
+                nav_button_next: "absolute right-1",
+                table: "w-full border-collapse",
+                head_row: "flex w-full mb-2",
+                head_cell: "text-muted-foreground rounded-md w-full font-normal text-[0.8rem] flex-1 text-center",
+                row: "flex w-full mt-1",
+                cell: "text-center text-sm p-0 relative flex-1 h-9 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                day: cn(
+                  "h-9 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                ),
+                day_selected: "bg-blue-600 text-white hover:bg-blue-700 hover:text-white focus:bg-blue-600 focus:text-white",
                 day_today: "bg-blue-100 text-blue-900 font-semibold",
+                day_outside: "text-muted-foreground opacity-50",
+                day_disabled: "text-muted-foreground opacity-50",
+                day_hidden: "invisible",
               }}
             />
           </CardContent>
@@ -162,7 +183,7 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
 
       {/* Journal Stats */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-4">
           <CardTitle className="text-lg">Your Progress</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
