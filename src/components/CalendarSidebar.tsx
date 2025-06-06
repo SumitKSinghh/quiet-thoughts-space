@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, ChevronDown, TrendingUp, Target, Flame } from 'lucide-react';
+import { CalendarDays, ChevronDown, TrendingUp, Target, Flame, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth, endOfMonth, subDays } from 'date-fns';
