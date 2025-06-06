@@ -53,20 +53,20 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 shadow-lg border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <BookOpen className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Daily Journal</h1>
+              <BookOpen className="h-8 w-8 text-white drop-shadow-md" />
+              <h1 className="text-2xl font-bold text-white drop-shadow-md">Daily Journal</h1>
             </div>
             
             <div className="flex items-center space-x-4">
               <Button
                 onClick={handleCreateNew}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Entry
@@ -75,7 +75,7 @@ const Dashboard = () => {
               <Button
                 onClick={handleLogout}
                 variant="outline"
-                className="text-gray-600 hover:text-gray-800"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout

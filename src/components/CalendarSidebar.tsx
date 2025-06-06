@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, ChevronDown } from 'lucide-react';
+import { CalendarDays, ChevronDown, TrendingUp, Target, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth, endOfMonth, subDays } from 'date-fns';
@@ -91,30 +91,31 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
   };
 
   const quickDateOptions = [
-    { label: 'Today', date: new Date() },
-    { label: 'Yesterday', date: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    { label: 'This Week', date: new Date() },
-    { label: 'This Month', date: new Date() },
+    { label: 'Today', date: new Date(), color: 'from-orange-400 to-pink-400' },
+    { label: 'Yesterday', date: new Date(Date.now() - 24 * 60 * 60 * 1000), color: 'from-purple-400 to-indigo-400' },
+    { label: 'This Week', date: new Date(), color: 'from-blue-400 to-cyan-400' },
+    { label: 'This Month', date: new Date(), color: 'from-green-400 to-teal-400' },
   ];
 
   return (
     <div className="space-y-6">
       {/* Quick Date Selection */}
-      <Card>
-        <CardHeader className="pb-4">
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50">
+        <CardHeader className="pb-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
           <CardTitle className="text-lg flex items-center">
-            <CalendarDays className="h-5 w-5 mr-2 text-blue-600" />
+            <CalendarDays className="h-5 w-5 mr-2 text-white drop-shadow" />
             Quick Access
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-2 p-4">
           {quickDateOptions.map((option) => (
             <Button
               key={option.label}
               variant="ghost"
               className={cn(
-                "w-full justify-start text-left",
-                "hover:bg-blue-50 hover:text-blue-700"
+                "w-full justify-start text-left bg-gradient-to-r",
+                option.color,
+                "text-white hover:scale-105 transform transition-all duration-200 shadow-md hover:shadow-lg"
               )}
               onClick={() => onDateSelect(option.date)}
             >
@@ -125,19 +126,19 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
       </Card>
 
       {/* Calendar */}
-      <Card>
-        <CardHeader className="pb-4">
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
+        <CardHeader className="pb-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-t-lg">
           <CardTitle 
             className="text-lg flex items-center justify-between cursor-pointer"
             onClick={() => setShowCalendar(!showCalendar)}
           >
             <span className="flex items-center">
-              <CalendarDays className="h-5 w-5 mr-2 text-blue-600" />
+              <CalendarDays className="h-5 w-5 mr-2 text-white drop-shadow" />
               Calendar
             </span>
             <ChevronDown 
               className={cn(
-                "h-4 w-4 transition-transform",
+                "h-4 w-4 transition-transform text-white",
                 showCalendar ? "rotate-180" : ""
               )}
             />
@@ -155,25 +156,25 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
                 months: "flex w-full",
                 month: "w-full",
                 caption: "flex justify-center pt-1 relative items-center mb-4",
-                caption_label: "text-sm font-medium",
+                caption_label: "text-sm font-medium text-gray-700",
                 nav: "space-x-1 flex items-center",
                 nav_button: cn(
-                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border border-input hover:bg-accent hover:text-accent-foreground"
+                  "h-7 w-7 bg-gradient-to-r from-purple-400 to-pink-400 text-white p-0 hover:from-purple-500 hover:to-pink-500 border-0 rounded-full shadow-md"
                 ),
                 nav_button_previous: "absolute left-1",
                 nav_button_next: "absolute right-1",
                 table: "w-full border-collapse",
                 head_row: "flex w-full mb-2",
-                head_cell: "text-muted-foreground rounded-md w-full font-normal text-[0.8rem] flex-1 text-center",
+                head_cell: "text-gray-600 rounded-md w-full font-semibold text-[0.8rem] flex-1 text-center",
                 row: "flex w-full mt-1",
-                cell: "text-center text-sm p-0 relative flex-1 h-9 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                cell: "text-center text-sm p-0 relative flex-1 h-9",
                 day: cn(
-                  "h-9 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  "h-9 w-full p-0 font-normal hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:text-white rounded-md transition-all duration-200"
                 ),
-                day_selected: "bg-blue-600 text-white hover:bg-blue-700 hover:text-white focus:bg-blue-600 focus:text-white",
-                day_today: "bg-blue-100 text-blue-900 font-semibold",
-                day_outside: "text-muted-foreground opacity-50",
-                day_disabled: "text-muted-foreground opacity-50",
+                day_selected: "bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-md",
+                day_today: "bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow-md",
+                day_outside: "text-gray-400 opacity-50",
+                day_disabled: "text-gray-300 opacity-50",
                 day_hidden: "invisible",
               }}
             />
@@ -182,22 +183,34 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
       </Card>
 
       {/* Journal Stats */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Your Progress</CardTitle>
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-green-50">
+        <CardHeader className="pb-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-t-lg">
+          <CardTitle className="text-lg flex items-center">
+            <TrendingUp className="h-5 w-5 mr-2 text-white drop-shadow" />
+            Your Progress
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Entries this month</span>
-            <span className="font-semibold text-blue-600">{stats.entriesThisMonth}</span>
+        <CardContent className="space-y-4 p-4">
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg">
+            <span className="text-sm font-medium text-gray-700 flex items-center">
+              <Target className="h-4 w-4 mr-2 text-blue-600" />
+              Entries this month
+            </span>
+            <span className="font-bold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{stats.entriesThisMonth}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Current streak</span>
-            <span className="font-semibold text-green-600">{stats.currentStreak} days</span>
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg">
+            <span className="text-sm font-medium text-gray-700 flex items-center">
+              <Flame className="h-4 w-4 mr-2 text-orange-600" />
+              Current streak
+            </span>
+            <span className="font-bold text-lg bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{stats.currentStreak} days</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Total entries</span>
-            <span className="font-semibold text-gray-900">{stats.totalEntries}</span>
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-100 to-teal-100 rounded-lg">
+            <span className="text-sm font-medium text-gray-700 flex items-center">
+              <BookOpen className="h-4 w-4 mr-2 text-green-600" />
+              Total entries
+            </span>
+            <span className="font-bold text-lg bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">{stats.totalEntries}</span>
           </div>
         </CardContent>
       </Card>
