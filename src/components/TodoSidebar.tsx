@@ -11,11 +11,14 @@ import {
   CheckSquare, 
   Flag,
   ChevronDown,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, isFuture } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
+import TodoModal from './TodoModal';
 
 interface Todo {
   id: string;
@@ -39,6 +42,8 @@ const TodoSidebar = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('my-day');
   const [showTodos, setShowTodos] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadTodos();
@@ -65,12 +70,63 @@ const TodoSidebar = () => {
     }
   };
 
+  const toggleTodoComplete = async (todoId: string, completed: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('todos')
+        .update({ completed: !completed })
+        .eq('id', todoId);
+
+      if (error) throw error;
+
+      setTodos(todos.map(todo => 
+        todo.id === todoId ? { ...todo, completed: !completed } : todo
+      ));
+
+      toast({
+        title: "Success",
+        description: `Todo ${!completed ? 'completed' : 'uncompleted'}!`,
+      });
+    } catch (error: any) {
+      console.error('Error updating todo:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update todo.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteTodo = async (todoId: string) => {
+    try {
+      const { error } = await supabase
+        .from('todos')
+        .delete()
+        .eq('id', todoId);
+
+      if (error) throw error;
+
+      setTodos(todos.filter(todo => todo.id !== todoId));
+
+      toast({
+        title: "Success",
+        description: "Todo deleted successfully!",
+      });
+    } catch (error: any) {
+      console.error('Error deleting todo:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete todo.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getMyDayTodos = () => {
     return todos.filter(todo => isToday(new Date(todo.entry_date)) && !todo.completed);
   };
 
   const getImportantTodos = () => {
-    // For demo purposes, considering incomplete todos as important
     return todos.filter(todo => !todo.completed);
   };
 
@@ -79,7 +135,6 @@ const TodoSidebar = () => {
   };
 
   const getAssignedTodos = () => {
-    // For demo purposes, showing todos with journal_id as "assigned"
     return todos.filter(todo => todo.journal_id !== null);
   };
 
@@ -88,7 +143,6 @@ const TodoSidebar = () => {
   };
 
   const getFlaggedTodos = () => {
-    // For demo purposes, showing completed todos as "flagged"
     return todos.filter(todo => todo.completed);
   };
 
@@ -229,6 +283,7 @@ const TodoSidebar = () => {
                 size="sm"
                 variant="ghost"
                 className="text-white hover:bg-white/20 h-8 w-8 p-0"
+                onClick={() => setIsModalOpen(true)}
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -244,6 +299,15 @@ const TodoSidebar = () => {
               <div className="text-center py-8 text-gray-500">
                 <CheckSquare className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No tasks in this category</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-2 text-gray-500 hover:text-gray-700"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add your first task
+                </Button>
               </div>
             ) : (
               <div className="space-y-2">
@@ -251,33 +315,46 @@ const TodoSidebar = () => {
                   <div
                     key={todo.id}
                     className={cn(
-                      "flex items-center justify-between p-2 rounded-lg border transition-colors",
+                      "flex items-center justify-between p-2 rounded-lg border transition-colors group",
                       todo.completed 
                         ? "bg-green-50 border-green-200 text-green-700" 
                         : "bg-white border-gray-200 hover:bg-gray-50"
                     )}
                   >
-                    <div className="flex items-center space-x-2">
-                      <div className={cn(
-                        "w-4 h-4 rounded border-2 flex items-center justify-center",
-                        todo.completed 
-                          ? "bg-green-500 border-green-500" 
-                          : "border-gray-300"
-                      )}>
+                    <div className="flex items-center space-x-2 flex-1">
+                      <button
+                        onClick={() => toggleTodoComplete(todo.id, todo.completed)}
+                        className={cn(
+                          "w-4 h-4 rounded border-2 flex items-center justify-center transition-colors",
+                          todo.completed 
+                            ? "bg-green-500 border-green-500" 
+                            : "border-gray-300 hover:border-green-400"
+                        )}
+                      >
                         {todo.completed && (
                           <CheckSquare className="h-3 w-3 text-white" />
                         )}
-                      </div>
+                      </button>
                       <span className={cn(
-                        "text-sm",
+                        "text-sm flex-1",
                         todo.completed && "line-through"
                       )}>
                         {todo.task}
                       </span>
                     </div>
-                    <span className="text-xs text-gray-500">
-                      {format(new Date(todo.entry_date), 'MMM d')}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-500">
+                        {format(new Date(todo.entry_date), 'MMM d')}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity"
+                        onClick={() => deleteTodo(todo.id)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
                 
@@ -293,6 +370,12 @@ const TodoSidebar = () => {
           </CardContent>
         </Card>
       )}
+
+      <TodoModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={loadTodos}
+      />
     </div>
   );
 };
