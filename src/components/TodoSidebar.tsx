@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -154,7 +155,7 @@ const TodoSidebar = () => {
   };
 
   const getImportantTodos = () => {
-    return todos.filter(todo => todo.important && !todo.completed);
+    return todos.filter(todo => todo.important === true && !todo.completed);
   };
 
   const getPlannedTodos = () => {
@@ -368,6 +369,9 @@ const TodoSidebar = () => {
                       )}>
                         {todo.task}
                       </span>
+                      {todo.important && (
+                        <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                      )}
                     </div>
                     <div className="flex items-center space-x-2">
                       <button

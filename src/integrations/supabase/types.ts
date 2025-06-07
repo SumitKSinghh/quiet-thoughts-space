@@ -45,6 +45,7 @@ export type Database = {
           created_at: string
           entry_date: string
           id: string
+          important: boolean
           journal_id: string | null
           task: string
           updated_at: string
@@ -55,6 +56,7 @@ export type Database = {
           created_at?: string
           entry_date: string
           id?: string
+          important?: boolean
           journal_id?: string | null
           task: string
           updated_at?: string
@@ -65,6 +67,7 @@ export type Database = {
           created_at?: string
           entry_date?: string
           id?: string
+          important?: boolean
           journal_id?: string | null
           task?: string
           updated_at?: string
