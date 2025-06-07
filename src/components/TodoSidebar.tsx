@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,7 @@ interface Todo {
   entry_date: string;
   user_id: string;
   journal_id: string | null;
+  important: boolean;
 }
 
 interface TodoCategory {
@@ -97,6 +97,33 @@ const TodoSidebar = () => {
     }
   };
 
+  const toggleTodoImportant = async (todoId: string, important: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('todos')
+        .update({ important: !important })
+        .eq('id', todoId);
+
+      if (error) throw error;
+
+      setTodos(todos.map(todo => 
+        todo.id === todoId ? { ...todo, important: !important } : todo
+      ));
+
+      toast({
+        title: "Success",
+        description: `Todo ${!important ? 'marked as important' : 'unmarked as important'}!`,
+      });
+    } catch (error: any) {
+      console.error('Error updating todo importance:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update todo importance.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const deleteTodo = async (todoId: string) => {
     try {
       const { error } = await supabase
@@ -127,7 +154,7 @@ const TodoSidebar = () => {
   };
 
   const getImportantTodos = () => {
-    return todos.filter(todo => !todo.completed);
+    return todos.filter(todo => todo.important && !todo.completed);
   };
 
   const getPlannedTodos = () => {
@@ -343,6 +370,22 @@ const TodoSidebar = () => {
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => toggleTodoImportant(todo.id, todo.important)}
+                        className={cn(
+                          "opacity-0 group-hover:opacity-100 transition-opacity",
+                          todo.important && "opacity-100"
+                        )}
+                      >
+                        <Star 
+                          className={cn(
+                            "h-4 w-4",
+                            todo.important 
+                              ? "fill-yellow-500 text-yellow-500" 
+                              : "text-gray-400 hover:text-yellow-500"
+                          )} 
+                        />
+                      </button>
                       <span className="text-xs text-gray-500">
                         {format(new Date(todo.entry_date), 'MMM d')}
                       </span>

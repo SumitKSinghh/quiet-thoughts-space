@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +22,7 @@ interface TodoModalProps {
 const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) => {
   const [task, setTask] = useState('');
   const [entryDate, setEntryDate] = useState<Date>(selectedDate || new Date());
+  const [important, setImportant] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -53,7 +54,8 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
           task: task.trim(),
           entry_date: format(entryDate, 'yyyy-MM-dd'),
           user_id: user.id,
-          completed: false
+          completed: false,
+          important: important
         });
 
       if (error) throw error;
@@ -65,6 +67,7 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
 
       setTask('');
       setEntryDate(selectedDate || new Date());
+      setImportant(false);
       onSave();
       onClose();
     } catch (error: any) {
@@ -122,6 +125,22 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
                 />
               </PopoverContent>
             </Popover>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setImportant(!important)}
+              className={cn(
+                "flex items-center space-x-2 p-2",
+                important ? "text-yellow-600" : "text-gray-400"
+              )}
+            >
+              <Star className={cn("h-4 w-4", important ? "fill-yellow-500" : "")} />
+              <span className="text-sm">Mark as Important</span>
+            </Button>
           </div>
           
           <div className="flex justify-end space-x-2 pt-4">
