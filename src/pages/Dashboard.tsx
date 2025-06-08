@@ -8,6 +8,7 @@ import JournalEditor from '@/components/JournalEditor';
 import JournalList from '@/components/JournalList';
 import CalendarSidebar from '@/components/CalendarSidebar';
 import TodoSidebar from '@/components/TodoSidebar';
+import UnfinishedTasks from '@/components/UnfinishedTasks';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -87,6 +88,11 @@ const Dashboard = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Unfinished Tasks Section */}
+        <div className="mb-6">
+          <UnfinishedTasks />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
           {/* Left Sidebar - Calendar */}
           <div className="lg:col-span-2">
