@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckSquare, Star, AlertCircle } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { CheckSquare, Star, AlertCircle, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
@@ -21,6 +21,7 @@ interface Todo {
 const UnfinishedTasks = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -76,9 +77,9 @@ const UnfinishedTasks = () => {
 
   if (loading) {
     return (
-      <Card className="border-rose-200 bg-rose-50">
+      <Card className="border-orange-200 bg-orange-50">
         <CardContent className="p-4">
-          <div className="text-center text-rose-600">Loading unfinished tasks...</div>
+          <div className="text-center text-orange-600">Loading unfinished tasks...</div>
         </CardContent>
       </Card>
     );
@@ -89,51 +90,65 @@ const UnfinishedTasks = () => {
   }
 
   return (
-    <Card className="border-rose-200 bg-rose-50 shadow-lg">
-      <CardHeader className="pb-4 bg-gradient-to-r from-rose-400 to-pink-400 text-white rounded-t-lg">
-        <CardTitle className="text-lg flex items-center">
-          <AlertCircle className="h-5 w-5 mr-2 text-white drop-shadow" />
-          Unfinished Tasks
-          <Badge 
-            variant="secondary" 
-            className="ml-2 bg-white/20 text-white border-white/30"
-          >
-            {todos.length}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="p-4">
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          {todos.map((todo) => (
-            <div
-              key={todo.id}
-              className="flex items-center justify-between p-3 rounded-lg border border-rose-200 bg-white hover:bg-rose-50 transition-colors group"
-            >
-              <div className="flex items-center space-x-3 flex-1">
-                <button
-                  onClick={() => toggleTodoComplete(todo.id)}
-                  className="w-5 h-5 rounded border-2 border-rose-400 hover:border-rose-500 hover:bg-rose-100 flex items-center justify-center transition-colors"
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card className="border-orange-200 bg-orange-50 shadow-lg">
+        <CollapsibleTrigger asChild>
+          <CardHeader className="pb-4 bg-gradient-to-r from-orange-300 to-amber-300 text-slate-700 rounded-t-lg cursor-pointer hover:from-orange-400 hover:to-amber-400 transition-colors">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <div className="flex items-center">
+                <AlertCircle className="h-5 w-5 mr-2 text-slate-700 drop-shadow" />
+                Unfinished Tasks
+                <Badge 
+                  variant="secondary" 
+                  className="ml-2 bg-white/30 text-slate-700 border-white/40"
                 >
-                  <CheckSquare className="h-3 w-3 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-                <span className="text-rose-700 font-medium flex-1">
-                  {todo.task}
-                </span>
-                {todo.important && (
-                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  {todos.length}
+                </Badge>
+              </div>
+              <Plus 
+                className={cn(
+                  "h-5 w-5 text-slate-700 transition-transform duration-200",
+                  isOpen && "rotate-45"
                 )}
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-rose-500 font-medium">
-                  {format(new Date(todo.entry_date), 'MMM d')}
-                </span>
-              </div>
+              />
+            </CardTitle>
+          </CardHeader>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent>
+          <CardContent className="p-4">
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {todos.map((todo) => (
+                <div
+                  key={todo.id}
+                  className="flex items-center justify-between p-3 rounded-lg border border-orange-200 bg-white hover:bg-orange-50 transition-colors group"
+                >
+                  <div className="flex items-center space-x-3 flex-1">
+                    <button
+                      onClick={() => toggleTodoComplete(todo.id)}
+                      className="w-5 h-5 rounded border-2 border-orange-400 hover:border-orange-500 hover:bg-orange-100 flex items-center justify-center transition-colors"
+                    >
+                      <CheckSquare className="h-3 w-3 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                    <span className="text-orange-700 font-medium flex-1">
+                      {todo.task}
+                    </span>
+                    {todo.important && (
+                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-orange-500 font-medium">
+                      {format(new Date(todo.entry_date), 'MMM d')}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 };
 
