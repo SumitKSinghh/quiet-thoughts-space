@@ -55,9 +55,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 shadow-lg border-b border-purple-200">
+      <header className="bg-gradient-to-r from-slate-600 via-gray-600 to-stone-600 shadow-lg border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -68,7 +68,7 @@ const Dashboard = () => {
             <div className="flex items-center space-x-4">
               <Button
                 onClick={handleCreateNew}
-                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200"
+                className="bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg transform hover:scale-105 transition-all duration-200"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Entry

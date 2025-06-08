@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
@@ -90,17 +91,17 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
   };
 
   const quickDateOptions = [
-    { label: 'Today', date: new Date(), color: 'from-orange-400 to-pink-400' },
-    { label: 'Yesterday', date: new Date(Date.now() - 24 * 60 * 60 * 1000), color: 'from-purple-400 to-indigo-400' },
-    { label: 'This Week', date: new Date(), color: 'from-blue-400 to-cyan-400' },
-    { label: 'This Month', date: new Date(), color: 'from-green-400 to-teal-400' },
+    { label: 'Today', date: new Date(), color: 'from-orange-300 to-pink-300' },
+    { label: 'Yesterday', date: new Date(Date.now() - 24 * 60 * 60 * 1000), color: 'from-violet-300 to-indigo-300' },
+    { label: 'This Week', date: new Date(), color: 'from-blue-300 to-cyan-300' },
+    { label: 'This Month', date: new Date(), color: 'from-emerald-300 to-teal-300' },
   ];
 
   return (
     <div className="space-y-6">
       {/* Quick Date Selection */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50">
-        <CardHeader className="pb-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-violet-50">
+        <CardHeader className="pb-4 bg-gradient-to-r from-slate-400 to-gray-500 text-white rounded-t-lg">
           <CardTitle className="text-lg flex items-center">
             <CalendarDays className="h-5 w-5 mr-2 text-white drop-shadow" />
             Quick Access
@@ -126,7 +127,7 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
 
       {/* Calendar */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
-        <CardHeader className="pb-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-t-lg">
+        <CardHeader className="pb-4 bg-gradient-to-r from-blue-400 to-cyan-500 text-white rounded-t-lg">
           <CardTitle 
             className="text-lg flex items-center justify-between cursor-pointer"
             onClick={() => setShowCalendar(!showCalendar)}
@@ -158,7 +159,7 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
                 caption_label: "text-sm font-medium text-gray-700",
                 nav: "space-x-1 flex items-center",
                 nav_button: cn(
-                  "h-7 w-7 bg-gradient-to-r from-purple-400 to-pink-400 text-white p-0 hover:from-purple-500 hover:to-pink-500 border-0 rounded-full shadow-md"
+                  "h-7 w-7 bg-gradient-to-r from-violet-300 to-indigo-300 text-white p-0 hover:from-violet-400 hover:to-indigo-400 border-0 rounded-full shadow-md"
                 ),
                 nav_button_previous: "absolute left-1",
                 nav_button_next: "absolute right-1",
@@ -168,10 +169,10 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
                 row: "flex w-full mt-1",
                 cell: "text-center text-sm p-0 relative flex-1 h-9",
                 day: cn(
-                  "h-9 w-full p-0 font-normal hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:text-white rounded-md transition-all duration-200"
+                  "h-9 w-full p-0 font-normal hover:bg-gradient-to-r hover:from-blue-300 hover:to-violet-300 hover:text-white rounded-md transition-all duration-200"
                 ),
-                day_selected: "bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-md",
-                day_today: "bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow-md",
+                day_selected: "bg-gradient-to-r from-emerald-400 to-teal-400 text-white hover:from-emerald-500 hover:to-teal-500 shadow-md",
+                day_today: "bg-gradient-to-r from-orange-300 to-pink-300 text-white font-bold shadow-md",
                 day_outside: "text-gray-400 opacity-50",
                 day_disabled: "text-gray-300 opacity-50",
                 day_hidden: "invisible",
@@ -182,20 +183,20 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
       </Card>
 
       {/* Journal Stats */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-green-50">
-        <CardHeader className="pb-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-t-lg">
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-emerald-50">
+        <CardHeader className="pb-4 bg-gradient-to-r from-emerald-400 to-teal-500 text-white rounded-t-lg">
           <CardTitle className="text-lg flex items-center">
             <TrendingUp className="h-5 w-5 mr-2 text-white drop-shadow" />
             Your Progress
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 p-4">
-          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg">
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-100 to-violet-100 rounded-lg">
             <span className="text-sm font-medium text-gray-700 flex items-center">
               <Target className="h-4 w-4 mr-2 text-blue-600" />
               Entries this month
             </span>
-            <span className="font-bold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{stats.entriesThisMonth}</span>
+            <span className="font-bold text-lg bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">{stats.entriesThisMonth}</span>
           </div>
           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg">
             <span className="text-sm font-medium text-gray-700 flex items-center">
@@ -204,12 +205,12 @@ const CalendarSidebar = ({ selectedDate, onDateSelect }: CalendarSidebarProps) =
             </span>
             <span className="font-bold text-lg bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{stats.currentStreak} days</span>
           </div>
-          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-100 to-teal-100 rounded-lg">
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg">
             <span className="text-sm font-medium text-gray-700 flex items-center">
-              <BookOpen className="h-4 w-4 mr-2 text-green-600" />
+              <BookOpen className="h-4 w-4 mr-2 text-emerald-600" />
               Total entries
             </span>
-            <span className="font-bold text-lg bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">{stats.totalEntries}</span>
+            <span className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{stats.totalEntries}</span>
           </div>
         </CardContent>
       </Card>

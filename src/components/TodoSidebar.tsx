@@ -179,42 +179,42 @@ const TodoSidebar = () => {
       id: 'my-day',
       title: 'My Day',
       icon: Calendar,
-      color: 'from-blue-500 to-cyan-500',
+      color: 'from-blue-400 to-cyan-400',
       count: getMyDayTodos().length,
     },
     {
       id: 'important',
       title: 'Important',
       icon: Star,
-      color: 'from-yellow-500 to-orange-500',
+      color: 'from-amber-400 to-orange-400',
       count: getImportantTodos().length,
     },
     {
       id: 'planned',
       title: 'Planned',
       icon: Calendar,
-      color: 'from-green-500 to-teal-500',
+      color: 'from-emerald-400 to-teal-400',
       count: getPlannedTodos().length,
     },
     {
       id: 'assigned',
       title: 'Assigned to Me',
       icon: Users,
-      color: 'from-purple-500 to-indigo-500',
+      color: 'from-violet-400 to-indigo-400',
       count: getAssignedTodos().length,
     },
     {
       id: 'tasks',
       title: 'Tasks',
       icon: CheckSquare,
-      color: 'from-gray-500 to-slate-500',
+      color: 'from-gray-400 to-slate-400',
       count: getAllTasks().length,
     },
     {
       id: 'flagged',
       title: 'Flagged Email',
       icon: Flag,
-      color: 'from-red-500 to-pink-500',
+      color: 'from-rose-400 to-pink-400',
       count: getFlaggedTodos().length,
     },
   ];
@@ -243,9 +243,9 @@ const TodoSidebar = () => {
   return (
     <div className="space-y-6">
       {/* Todo Categories */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-indigo-50">
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-slate-50">
         <CardHeader 
-          className="pb-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-t-lg cursor-pointer"
+          className="pb-4 bg-gradient-to-r from-slate-500 to-gray-500 text-white rounded-t-lg cursor-pointer"
           onClick={() => setShowTodos(!showTodos)}
         >
           <CardTitle className="text-lg flex items-center justify-between">
@@ -370,7 +370,7 @@ const TodoSidebar = () => {
                         {todo.task}
                       </span>
                       {todo.important && (
-                        <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                       )}
                     </div>
                     <div className="flex items-center space-x-2">
@@ -385,8 +385,8 @@ const TodoSidebar = () => {
                           className={cn(
                             "h-4 w-4",
                             todo.important 
-                              ? "fill-yellow-500 text-yellow-500" 
-                              : "text-gray-400 hover:text-yellow-500"
+                              ? "fill-amber-400 text-amber-400" 
+                              : "text-gray-400 hover:text-amber-400"
                           )} 
                         />
                       </button>

@@ -76,9 +76,9 @@ const UnfinishedTasks = () => {
 
   if (loading) {
     return (
-      <Card className="border-red-200 bg-red-50">
+      <Card className="border-rose-200 bg-rose-50">
         <CardContent className="p-4">
-          <div className="text-center text-red-600">Loading unfinished tasks...</div>
+          <div className="text-center text-rose-600">Loading unfinished tasks...</div>
         </CardContent>
       </Card>
     );
@@ -89,8 +89,8 @@ const UnfinishedTasks = () => {
   }
 
   return (
-    <Card className="border-red-200 bg-red-50 shadow-lg">
-      <CardHeader className="pb-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-t-lg">
+    <Card className="border-rose-200 bg-rose-50 shadow-lg">
+      <CardHeader className="pb-4 bg-gradient-to-r from-rose-400 to-pink-400 text-white rounded-t-lg">
         <CardTitle className="text-lg flex items-center">
           <AlertCircle className="h-5 w-5 mr-2 text-white drop-shadow" />
           Unfinished Tasks
@@ -108,24 +108,24 @@ const UnfinishedTasks = () => {
           {todos.map((todo) => (
             <div
               key={todo.id}
-              className="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-white hover:bg-red-50 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-rose-200 bg-white hover:bg-rose-50 transition-colors group"
             >
               <div className="flex items-center space-x-3 flex-1">
                 <button
                   onClick={() => toggleTodoComplete(todo.id)}
-                  className="w-5 h-5 rounded border-2 border-red-400 hover:border-red-500 hover:bg-red-100 flex items-center justify-center transition-colors"
+                  className="w-5 h-5 rounded border-2 border-rose-400 hover:border-rose-500 hover:bg-rose-100 flex items-center justify-center transition-colors"
                 >
-                  <CheckSquare className="h-3 w-3 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CheckSquare className="h-3 w-3 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
-                <span className="text-red-700 font-medium flex-1">
+                <span className="text-rose-700 font-medium flex-1">
                   {todo.task}
                 </span>
                 {todo.important && (
-                  <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                 )}
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-red-500 font-medium">
+                <span className="text-xs text-rose-500 font-medium">
                   {format(new Date(todo.entry_date), 'MMM d')}
                 </span>
               </div>
