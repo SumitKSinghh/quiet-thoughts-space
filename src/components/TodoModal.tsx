@@ -108,21 +108,50 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal mt-1",
+                    "w-full justify-start text-left font-normal mt-1 bg-gradient-to-r from-slate-50 to-gray-50 hover:from-slate-100 hover:to-gray-100 border-slate-200 shadow-sm",
                     !entryDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="mr-2 h-4 w-4 text-slate-600" />
                   {entryDate ? format(entryDate, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={entryDate}
-                  onSelect={(date) => date && setEntryDate(date)}
-                  initialFocus
-                />
+              <PopoverContent className="w-auto p-0 shadow-lg border-slate-200" align="start">
+                <div className="bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 rounded-lg border border-slate-200">
+                  <Calendar
+                    mode="single"
+                    selected={entryDate}
+                    onSelect={(date) => date && setEntryDate(date)}
+                    initialFocus
+                    className="p-4 pointer-events-auto"
+                    classNames={{
+                      months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                      month: "space-y-4",
+                      caption: "flex justify-center pt-1 relative items-center mb-4",
+                      caption_label: "text-sm font-semibold text-slate-700",
+                      nav: "space-x-1 flex items-center",
+                      nav_button: cn(
+                        "h-7 w-7 bg-white hover:bg-slate-100 border border-slate-200 rounded-md opacity-80 hover:opacity-100 transition-all shadow-sm"
+                      ),
+                      nav_button_previous: "absolute left-1",
+                      nav_button_next: "absolute right-1",
+                      table: "w-full border-collapse space-y-1",
+                      head_row: "flex",
+                      head_cell: "text-slate-600 rounded-md w-9 font-medium text-[0.8rem] text-center",
+                      row: "flex w-full mt-2",
+                      cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-slate-100 [&:has([aria-selected].day-outside)]:bg-slate-50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                      day: cn(
+                        "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-slate-100 rounded-md transition-colors"
+                      ),
+                      day_selected: "bg-gradient-to-r from-slate-600 to-gray-600 text-white hover:from-slate-700 hover:to-gray-700 focus:from-slate-600 focus:to-gray-600 shadow-sm",
+                      day_today: "bg-slate-100 text-slate-900 font-semibold border border-slate-300",
+                      day_outside: "text-slate-400 opacity-50 aria-selected:bg-slate-100 aria-selected:text-slate-600 aria-selected:opacity-30",
+                      day_disabled: "text-slate-300 opacity-50",
+                      day_range_middle: "aria-selected:bg-slate-100 aria-selected:text-slate-900",
+                      day_hidden: "invisible",
+                    }}
+                  />
+                </div>
               </PopoverContent>
             </Popover>
           </div>
@@ -134,23 +163,23 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
               size="sm"
               onClick={() => setImportant(!important)}
               className={cn(
-                "flex items-center space-x-2 p-2",
-                important ? "text-yellow-600" : "text-gray-400"
+                "flex items-center space-x-2 p-2 rounded-lg transition-colors",
+                important ? "text-amber-600 bg-amber-50 hover:bg-amber-100" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
               )}
             >
-              <Star className={cn("h-4 w-4", important ? "fill-yellow-500" : "")} />
+              <Star className={cn("h-4 w-4", important ? "fill-amber-500 text-amber-500" : "")} />
               <span className="text-sm">Mark as Important</span>
             </Button>
           </div>
           
           <div className="flex justify-end space-x-2 pt-4">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} className="border-slate-200 hover:bg-slate-50">
               Cancel
             </Button>
             <Button 
               onClick={handleSave} 
               disabled={isSubmitting}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-700 hover:to-gray-700 shadow-sm"
             >
               {isSubmitting ? 'Creating...' : 'Create Todo'}
             </Button>
