@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar, BookOpen, LogOut } from 'lucide-react';
+import { Plus, Calendar, BookOpen, LogOut, User } from 'lucide-react';
 import JournalEditor from '@/components/JournalEditor';
 import JournalList from '@/components/JournalList';
 import CalendarSidebar from '@/components/CalendarSidebar';
@@ -72,6 +72,15 @@ const Dashboard = () => {
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Entry
+              </Button>
+              
+              <Button
+                onClick={() => navigate('/profile')}
+                variant="outline"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Profile
               </Button>
               
               <Button

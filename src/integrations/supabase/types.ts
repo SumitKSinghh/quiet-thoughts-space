@@ -39,6 +39,45 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          age: number | null
+          created_at: string
+          full_name: string | null
+          goal_in_life: string | null
+          id: string
+          profession: string | null
+          profile_picture_url: string | null
+          sex: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string
+          full_name?: string | null
+          goal_in_life?: string | null
+          id?: string
+          profession?: string | null
+          profile_picture_url?: string | null
+          sex?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          created_at?: string
+          full_name?: string | null
+          goal_in_life?: string | null
+          id?: string
+          profession?: string | null
+          profile_picture_url?: string | null
+          sex?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       todos: {
         Row: {
           completed: boolean
