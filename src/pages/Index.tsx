@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, Calendar, CheckSquare, Shield, Sparkles } from 'lucide-react';
+import { BookOpen, Calendar, CheckSquare, Shield, Sparkles, Heart, Star, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -95,125 +96,165 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-blue-400 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
+      </div>
+
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - App info */}
-          <div className="space-y-8">
+          <div className="space-y-8 animate-fade-in">
             <div className="text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start mb-6">
-                <BookOpen className="h-16 w-16 text-blue-600" />
+                <div className="relative">
+                  <BookOpen className="h-20 w-20 text-white drop-shadow-lg hover:scale-110 transition-transform duration-300" />
+                  <Sparkles className="h-8 w-8 text-yellow-300 absolute -top-2 -right-2 animate-pulse" />
+                </div>
               </div>
-              <h1 className="text-5xl font-bold text-gray-900 mb-6">
+              <h1 className="text-6xl font-bold bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent mb-6 drop-shadow-lg">
                 Daily Journal
               </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Your personal space for reflection, growth, and organization. 
-                Capture your thoughts, track your goals, and build better habits.
+              <p className="text-xl text-white/90 mb-8 leading-relaxed drop-shadow backdrop-blur-sm">
+                ✨ Your personal space for reflection, growth, and organization. 
+                Capture your thoughts, track your goals, and build better habits with style! 💫
               </p>
             </div>
 
-            {/* Features */}
+            {/* Enhanced Features Grid */}
             <div className="grid sm:grid-cols-2 gap-6">
-              <div className="flex items-start space-x-4">
-                <Calendar className="h-8 w-8 text-blue-600 mt-1" />
+              <div className="flex items-start space-x-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
+                <div className="p-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Daily Entries</h3>
-                  <p className="text-gray-600 text-sm">Organize your thoughts by date with our intuitive calendar view</p>
+                  <h3 className="font-bold text-white mb-1 text-lg">Daily Entries</h3>
+                  <p className="text-white/80 text-sm">Organize thoughts with our intuitive calendar view ✨</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-4">
-                <CheckSquare className="h-8 w-8 text-blue-600 mt-1" />
+              
+              <div className="flex items-start space-x-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
+                <div className="p-2 rounded-full bg-gradient-to-r from-green-400 to-emerald-400">
+                  <CheckSquare className="h-6 w-6 text-white" />
+                </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">To-Do Lists</h3>
-                  <p className="text-gray-600 text-sm">Track tasks and goals alongside your journal entries</p>
+                  <h3 className="font-bold text-white mb-1 text-lg">Smart To-Dos</h3>
+                  <p className="text-white/80 text-sm">Track tasks and goals with intelligent organization 🎯</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-4">
-                <Shield className="h-8 w-8 text-blue-600 mt-1" />
+              
+              <div className="flex items-start space-x-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
+                <div className="p-2 rounded-full bg-gradient-to-r from-purple-400 to-pink-400">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Private & Secure</h3>
-                  <p className="text-gray-600 text-sm">Your entries are encrypted and completely private</p>
+                  <h3 className="font-bold text-white mb-1 text-lg">Ultra Secure</h3>
+                  <p className="text-white/80 text-sm">Bank-level encryption keeps your thoughts safe 🔒</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-4">
-                <Sparkles className="h-8 w-8 text-blue-600 mt-1" />
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Beautiful Design</h3>
-                  <p className="text-gray-600 text-sm">Clean, distraction-free interface for focused writing</p>
+              
+              <div className="flex items-start space-x-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
+                <div className="p-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400">
+                  <Zap className="h-6 w-6 text-white" />
                 </div>
+                <div>
+                  <h3 className="font-bold text-white mb-1 text-lg">Lightning Fast</h3>
+                  <p className="text-white/80 text-sm">Instant sync across all your devices ⚡</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats section */}
+            <div className="flex justify-center lg:justify-start space-x-8 pt-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">10K+</div>
+                <div className="text-white/80 text-sm">Happy Users</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">50K+</div>
+                <div className="text-white/80 text-sm">Journal Entries</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">99.9%</div>
+                <div className="text-white/80 text-sm">Uptime</div>
               </div>
             </div>
           </div>
 
-          {/* Right side - Auth form */}
-          <div className="flex justify-center lg:justify-end">
+          {/* Right side - Enhanced Auth form */}
+          <div className="flex justify-center lg:justify-end animate-scale-in">
             <div className="w-full max-w-md">
-              <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+              <Card className="shadow-2xl border-0 bg-white/20 backdrop-blur-xl border border-white/30 hover:bg-white/25 transition-all duration-300">
                 <CardHeader className="space-y-1 text-center">
-                  <CardTitle className="text-2xl">
-                    {isLogin ? 'Welcome back' : 'Start your journey'}
+                  <div className="flex justify-center mb-4">
+                    <Star className="h-8 w-8 text-yellow-300 animate-pulse" />
+                  </div>
+                  <CardTitle className="text-3xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    {isLogin ? 'Welcome Back! 👋' : 'Join the Journey! 🚀'}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-gray-700 font-medium">
                     {isLogin 
-                      ? 'Sign in to access your journal' 
-                      : 'Create your account to begin journaling'
+                      ? 'Ready to continue your growth story?' 
+                      : 'Start your amazing journaling adventure today!'
                     }
                   </CardDescription>
                 </CardHeader>
                 
                 <form onSubmit={handleSubmit}>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email" className="text-gray-700 font-semibold">Email ✉️</Label>
                       <Input
                         id="email"
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder="your.email@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="border-gray-200 focus:border-blue-500"
+                        className="border-2 border-purple-200 focus:border-purple-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500 rounded-xl"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password" className="text-gray-700 font-semibold">Password 🔑</Label>
                       <Input
                         id="password"
                         type="password"
-                        placeholder="Enter your password"
+                        placeholder="Your secure password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="border-gray-200 focus:border-blue-500"
+                        className="border-2 border-purple-200 focus:border-purple-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500 rounded-xl"
                       />
                     </div>
 
                     <Button 
                       type="submit" 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white font-bold py-3 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg"
                       disabled={loading}
                     >
-                      {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+                      {loading ? 'Magic happening... ✨' : (isLogin ? 'Sign In 🎉' : 'Create Account 🌟')}
                     </Button>
                     
                     <div className="flex items-center space-x-4">
-                      <Separator className="flex-1" />
-                      <span className="text-sm text-gray-500">or</span>
-                      <Separator className="flex-1" />
+                      <Separator className="flex-1 bg-purple-300" />
+                      <span className="text-sm text-gray-600 font-medium">or</span>
+                      <Separator className="flex-1 bg-purple-300" />
                     </div>
                     
                     <Button
                       type="button"
                       variant="ghost"
-                      className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      className="w-full text-purple-700 hover:text-purple-800 hover:bg-purple-100/50 font-semibold rounded-xl transition-all duration-300"
                       onClick={() => setIsLogin(!isLogin)}
                     >
                       {isLogin 
-                        ? "Don't have an account? Sign up" 
-                        : "Already have an account? Sign in"
+                        ? "New here? Join the community! 🎊" 
+                        : "Already part of the family? Welcome back! 💖"
                       }
                     </Button>
                   </CardContent>
@@ -224,12 +265,22 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-white/50 backdrop-blur-sm border-t border-blue-100 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-600">
-            Built with ❤️ for mindful journaling and personal growth
-          </p>
+      {/* Enhanced Footer */}
+      <footer className="bg-white/10 backdrop-blur-md border-t border-white/20 py-12 relative z-10">
+        <div className="container mx-auto px-4">
+          <div className="text-center space-y-4">
+            <div className="flex justify-center space-x-2 mb-4">
+              <Heart className="h-6 w-6 text-red-400 animate-pulse" />
+              <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+              <Star className="h-6 w-6 text-blue-300 animate-pulse" />
+            </div>
+            <p className="text-white/90 text-lg font-medium">
+              Built with 💖 for mindful journaling and personal growth
+            </p>
+            <p className="text-white/70 text-sm">
+              Join thousands of users on their journey to self-discovery ✨
+            </p>
+          </div>
         </div>
       </footer>
     </div>
