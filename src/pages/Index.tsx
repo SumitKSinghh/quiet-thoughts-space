@@ -196,6 +196,11 @@ const Index = () => {
                   <CardTitle className="text-3xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     {isLogin ? 'Welcome Back! 👋' : 'Join the Journey! 🚀'}
                   </CardTitle>
+                  {isLogin && (
+                    <div className="text-xl font-semibold text-purple-700 mt-2">
+                      Let's Plan
+                    </div>
+                  )}
                   <CardDescription className="text-gray-700 font-medium">
                     {isLogin 
                       ? 'Ready to continue your growth story?' 
