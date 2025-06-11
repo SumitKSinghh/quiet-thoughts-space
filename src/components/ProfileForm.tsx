@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Camera, Upload, User } from 'lucide-react';
+import { Camera, Upload, User, Edit, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,6 +28,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<ProfileData>({
@@ -115,7 +116,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && isEditing) {
       uploadProfilePicture(file);
     }
   };
@@ -140,6 +141,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
 
       if (error) throw error;
 
+      setIsEditing(false);
       toast({
         title: "Success",
         description: "Profile updated successfully!",
@@ -153,6 +155,25 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    // Reset form to original values
+    if (profileData) {
+      form.reset({
+        full_name: profileData.full_name || '',
+        age: profileData.age,
+        sex: profileData.sex || '',
+        profession: profileData.profession || '',
+        goal_in_life: profileData.goal_in_life || '',
+        profile_picture_url: profileData.profile_picture_url,
+      });
     }
   };
 
@@ -170,21 +191,56 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
                 <User className="h-12 w-12" />
               </AvatarFallback>
             </Avatar>
-            <label className="absolute bottom-0 right-0 bg-slate-600 hover:bg-slate-700 text-white p-2 rounded-full cursor-pointer shadow-lg transition-colors">
-              <Camera className="h-4 w-4" />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                disabled={uploading}
-                className="hidden"
-              />
-            </label>
+            {isEditing && (
+              <label className="absolute bottom-0 right-0 bg-slate-600 hover:bg-slate-700 text-white p-2 rounded-full cursor-pointer shadow-lg transition-colors">
+                <Camera className="h-4 w-4" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  disabled={uploading}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
           {uploading && (
             <div className="flex items-center space-x-2 text-slate-600">
               <Upload className="h-4 w-4 animate-spin" />
               <span className="text-sm">Uploading...</span>
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center space-x-4">
+          {!isEditing ? (
+            <Button
+              type="button"
+              onClick={handleEditClick}
+              className="bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-700 hover:to-gray-700"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Button>
+          ) : (
+            <div className="flex space-x-2">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {loading ? 'Saving...' : 'Save Profile'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancelEdit}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
             </div>
           )}
         </div>
@@ -197,7 +253,11 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
               <FormItem>
                 <FormLabel>Full Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your full name" {...field} />
+                  <Input 
+                    placeholder="Enter your full name" 
+                    disabled={!isEditing}
+                    {...field} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -214,6 +274,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
                   <Input 
                     type="number" 
                     placeholder="Enter your age" 
+                    disabled={!isEditing}
                     {...field}
                     value={field.value || ''}
                     onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
@@ -230,7 +291,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Gender</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value} disabled={!isEditing}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select your gender" />
@@ -255,7 +316,11 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
               <FormItem>
                 <FormLabel>Profession</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your profession" {...field} />
+                  <Input 
+                    placeholder="Enter your profession" 
+                    disabled={!isEditing}
+                    {...field} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -273,6 +338,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
                 <Textarea 
                   placeholder="Describe your life goals and aspirations..."
                   className="min-h-[100px]"
+                  disabled={!isEditing}
                   {...field}
                 />
               </FormControl>
@@ -280,14 +346,6 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
             </FormItem>
           )}
         />
-
-        <Button 
-          type="submit" 
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-700 hover:to-gray-700"
-        >
-          {loading ? 'Saving...' : 'Save Profile'}
-        </Button>
       </form>
     </Form>
   );
