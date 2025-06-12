@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Calendar, CheckSquare, Loader2, BookOpen, Clock, ChevronDown, ChevronRight, Lock } from 'lucide-react';
+import { Edit, Calendar, CheckSquare, Loader2, BookOpen, Clock, ChevronDown, ChevronRight, Lock, ArrowLeft } from 'lucide-react';
 import { format, isSameMonth, isBefore, isAfter, startOfMonth, endOfMonth } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -32,6 +31,7 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
+  const [fullViewMonth, setFullViewMonth] = useState<string | null>(null);
   const { toast } = useToast();
   const currentDate = new Date();
 
@@ -145,13 +145,12 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
       return;
     }
 
-    const newExpanded = new Set(expandedFiles);
-    if (newExpanded.has(monthKey)) {
-      newExpanded.delete(monthKey);
+    // Toggle full view mode
+    if (fullViewMonth === monthKey) {
+      setFullViewMonth(null);
     } else {
-      newExpanded.add(monthKey);
+      setFullViewMonth(monthKey);
     }
-    setExpandedFiles(newExpanded);
   };
 
   const handleEditJournal = (journal: Journal) => {
@@ -173,6 +172,145 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin text-slate-600 mx-auto mb-4" />
           <span className="text-lg text-slate-600 font-medium">Loading your journal collection...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Full view mode for expanded month
+  if (fullViewMonth) {
+    const monthJournals = groupedJournals[fullViewMonth] || [];
+    
+    return (
+      <div className="space-y-6">
+        {/* Header with back button */}
+        <div className="flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200 shadow-lg">
+          <div className="flex items-center space-x-4">
+            <Button
+              onClick={() => setFullViewMonth(null)}
+              variant="outline"
+              className="bg-white hover:bg-gray-50"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Library
+            </Button>
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl shadow-lg">
+                <BookOpen className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-amber-800 mb-1">
+                  📁 {fullViewMonth} Journals
+                </h2>
+                <p className="text-amber-700 font-medium">
+                  {monthJournals.length} {monthJournals.length === 1 ? 'entry' : 'entries'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Full journal list */}
+        <div className="grid gap-6">
+          {monthJournals.length > 0 ? (
+            monthJournals.map((journal, index) => (
+              <Card key={journal.id} className="group relative bg-gradient-to-br from-white to-gray-50 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-gray-200 overflow-hidden">
+                {/* Page Corner Fold */}
+                <div className="absolute top-0 right-0 w-8 h-8 bg-gradient-to-bl from-gray-300 to-transparent"></div>
+                
+                <CardHeader className="pb-4 bg-gradient-to-r from-gray-50 to-white border-b-2 border-gray-200">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-xl font-bold text-gray-800 mb-2 leading-tight">
+                        📝 {journal.title || `Journal Entry ${index + 1}`}
+                      </CardTitle>
+                      
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          <span className="font-medium">{formatDate(journal.entry_date)}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2" />
+                          <span>{formatTime(journal.created_at)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      onClick={() => handleEditJournal(journal)}
+                      variant="outline"
+                      className="text-gray-600 hover:text-gray-700 hover:bg-gray-100 border-2 border-gray-300 hover:border-gray-400 transition-all duration-200"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="space-y-4 pt-6">
+                  {/* Full Content */}
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-300 ml-6"></div>
+                    <div className="pl-10 pr-4">
+                      <div className="prose prose-gray max-w-none">
+                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                          {journal.content}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Todo section */}
+                  {journal.todos && journal.todos.length > 0 && (
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border-2 border-blue-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-2">
+                          <CheckSquare className="h-5 w-5 text-blue-600" />
+                          <span className="text-lg font-semibold text-blue-800">
+                            Tasks ({completedTodos(journal.todos)}/{journal.todos.length} completed)
+                          </span>
+                        </div>
+                        
+                        <Badge variant="secondary" className="bg-white text-blue-700 px-3 py-1">
+                          {journal.todos.length} {journal.todos.length === 1 ? 'task' : 'tasks'}
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {journal.todos.map((todo) => (
+                          <div key={todo.id} className="flex items-center space-x-3 bg-white rounded-lg p-3 border border-blue-100">
+                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                              todo.completed 
+                                ? 'bg-green-500 border-green-500' 
+                                : 'border-gray-300'
+                            }`}>
+                              {todo.completed && <span className="text-white text-xs">✓</span>}
+                            </div>
+                            <span className={`flex-1 ${
+                              todo.completed 
+                                ? 'text-gray-500 line-through' 
+                                : 'text-gray-800'
+                            }`}>
+                              {todo.task}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-gray-400 mb-4">
+                <BookOpen className="h-16 w-16 mx-auto mb-4" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No entries for {fullViewMonth}</h3>
+              <p className="text-gray-500">Start writing your thoughts and experiences!</p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -212,7 +350,6 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
         <div className="grid grid-cols-6 gap-2 pb-12 px-4">
           {allMonths.map((month, index) => {
             const monthJournals = groupedJournals[month.key] || [];
-            const isExpanded = expandedFiles.has(month.key);
             
             // Different colors for different states
             const fileColor = month.isCurrentMonth 
@@ -268,98 +405,12 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
                       {/* Expansion Icon - Only for Current Month */}
                       {month.isCurrentMonth && (
                         <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md group-hover:bg-gray-100 transition-colors">
-                          {isExpanded ? (
-                            <ChevronDown className="h-3 w-3 text-gray-600" />
-                          ) : (
-                            <ChevronRight className="h-3 w-3 text-gray-600" />
-                          )}
+                          <ChevronRight className="h-3 w-3 text-gray-600" />
                         </div>
                       )}
                     </div>
                   </button>
                 </div>
-                
-                {/* Expanded Pages - Only for Current Month */}
-                {isExpanded && month.isCurrentMonth && monthJournals.length > 0 && (
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 z-10 w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-2xl border-2 border-gray-200 mt-2">
-                    <div className="p-4 space-y-3">
-                      <h3 className="font-bold text-gray-800 text-center border-b pb-2">
-                        {month.key} Entries
-                      </h3>
-                      
-                      {monthJournals.map((journal, index) => (
-                        <div key={journal.id} className="group relative">
-                          <Card className="bg-gradient-to-br from-white to-gray-50 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 overflow-hidden relative transform hover:-translate-y-0.5">
-                            {/* Page Corner Fold */}
-                            <div className="absolute top-0 right-0 w-6 h-6 bg-gradient-to-bl from-gray-300 to-transparent"></div>
-                            
-                            <CardHeader className="pb-2 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <CardTitle className="text-sm font-bold text-gray-800 mb-1 leading-tight">
-                                    📝 {journal.title || `Entry ${index + 1}`}
-                                  </CardTitle>
-                                  
-                                  <div className="flex items-center space-x-2 text-xs text-gray-500">
-                                    <div className="flex items-center">
-                                      <Calendar className="h-3 w-3 mr-1" />
-                                      <span className="font-medium">{formatDate(journal.entry_date)}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                <Button
-                                  onClick={() => handleEditJournal(journal)}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 h-6 w-6 p-0"
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </CardHeader>
-                            
-                            <CardContent className="space-y-2 pt-2">
-                              {/* Content Preview */}
-                              <div className="relative">
-                                <div className="absolute left-0 top-0 bottom-0 w-px bg-red-200 ml-4"></div>
-                                <div className="pl-6 pr-2">
-                                  <p className="text-gray-700 leading-relaxed text-xs">
-                                    {getPreview(journal.content, 80)}
-                                  </p>
-                                </div>
-                              </div>
-                              
-                              {/* Todo section */}
-                              {journal.todos && journal.todos.length > 0 && (
-                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-2 border border-blue-200">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-2">
-                                      <CheckSquare className="h-3 w-3 text-blue-600" />
-                                      <span className="text-xs font-semibold text-blue-700">
-                                        {completedTodos(journal.todos)}/{journal.todos.length} tasks
-                                      </span>
-                                    </div>
-                                    
-                                    <Badge variant="secondary" className="bg-white text-blue-700 text-xs">
-                                      {journal.todos.length}
-                                    </Badge>
-                                  </div>
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        </div>
-                      ))}
-                      
-                      {monthJournals.length === 0 && (
-                        <div className="text-center py-8 text-gray-500">
-                          <p className="text-sm">No entries for this month yet</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             );
           })}
@@ -369,7 +420,7 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
         <div className="flex items-center justify-center space-x-6 mt-8 text-sm text-gray-600">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-gradient-to-b from-green-600 to-green-800 rounded"></div>
-            <span>Current Month</span>
+            <span>Current Month (Click to Expand)</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-gradient-to-b from-gray-500 to-gray-700 rounded opacity-70"></div>
