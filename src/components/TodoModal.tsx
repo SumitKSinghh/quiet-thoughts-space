@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { CalendarIcon, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,114 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
   const [entryDate, setEntryDate] = useState<Date>(selectedDate || new Date());
   const [important, setImportant] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [syncToCalendar, setSyncToCalendar] = useState(true);
+  const [hasGoogleCalendar, setHasGoogleCalendar] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    checkGoogleCalendarConnection();
+  }, []);
+
+  const checkGoogleCalendarConnection = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('google_calendar_tokens')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setHasGoogleCalendar(!!data);
+    } catch (error) {
+      console.error('Error checking Google Calendar connection:', error);
+    }
+  };
+
+  const createGoogleCalendarEvent = async (todoId: string) => {
+    if (!hasGoogleCalendar || !syncToCalendar) return null;
+
+    try {
+      const { data: tokens } = await supabase
+        .from('google_calendar_tokens')
+        .select('access_token, expires_at, refresh_token')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (!tokens) return null;
+
+      // Check if token needs refresh
+      const expiresAt = new Date(tokens.expires_at);
+      const now = new Date();
+      let accessToken = tokens.access_token;
+
+      if (expiresAt <= now) {
+        // Refresh the token
+        const { data: refreshedTokens, error: refreshError } = await supabase.functions.invoke('google-calendar', {
+          body: {
+            action: 'refresh_token',
+            refreshToken: tokens.refresh_token
+          }
+        });
+
+        if (refreshError) throw refreshError;
+
+        accessToken = refreshedTokens.access_token;
+        
+        // Update the tokens in database
+        await supabase
+          .from('google_calendar_tokens')
+          .update({
+            access_token: refreshedTokens.access_token,
+            expires_at: new Date(Date.now() + refreshedTokens.expires_in * 1000).toISOString()
+          })
+          .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+      }
+
+      // Create the calendar event
+      const eventData = {
+        summary: task.trim(),
+        description: `Task from your journal app${important ? ' (Important)' : ''}`,
+        start: {
+          date: format(entryDate, 'yyyy-MM-dd')
+        },
+        end: {
+          date: format(entryDate, 'yyyy-MM-dd')
+        },
+        reminders: {
+          useDefault: true
+        }
+      };
+
+      const { data: event, error: eventError } = await supabase.functions.invoke('google-calendar', {
+        body: {
+          action: 'create_event',
+          accessToken,
+          eventData
+        }
+      });
+
+      if (eventError) throw eventError;
+
+      // Update the todo with the Google Calendar event ID
+      await supabase
+        .from('todos')
+        .update({ google_calendar_event_id: event.id })
+        .eq('id', todoId);
+
+      return event.id;
+    } catch (error) {
+      console.error('Error creating Google Calendar event:', error);
+      // Don't fail the todo creation if calendar sync fails
+      toast({
+        title: "Warning",
+        description: "Todo created but couldn't sync to Google Calendar.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
 
   const handleSave = async () => {
     if (!task.trim()) {
@@ -48,7 +156,7 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
         return;
       }
 
-      const { error } = await supabase
+      const { data: todoData, error } = await supabase
         .from('todos')
         .insert({
           task: task.trim(),
@@ -56,13 +164,22 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
           user_id: user.id,
           completed: false,
           important: important
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
+      // Create Google Calendar event if enabled
+      if (hasGoogleCalendar && syncToCalendar) {
+        await createGoogleCalendarEvent(todoData.id);
+      }
+
       toast({
         title: "Success",
-        description: "Todo created successfully!",
+        description: hasGoogleCalendar && syncToCalendar 
+          ? "Todo created and synced to Google Calendar!"
+          : "Todo created successfully!",
       });
 
       setTask('');
@@ -171,6 +288,22 @@ const TodoModal = ({ isOpen, onClose, onSave, selectedDate }: TodoModalProps) =>
               <span className="text-sm">Mark as Important</span>
             </Button>
           </div>
+
+          {hasGoogleCalendar && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="sync-calendar"
+                checked={syncToCalendar}
+                onCheckedChange={(checked) => setSyncToCalendar(checked === true)}
+              />
+              <label
+                htmlFor="sync-calendar"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Sync to Google Calendar
+              </label>
+            </div>
+          )}
           
           <div className="flex justify-end space-x-2 pt-4">
             <Button variant="outline" onClick={onClose} className="border-slate-200 hover:bg-slate-50">
