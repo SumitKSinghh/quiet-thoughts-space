@@ -133,13 +133,11 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
   }, {} as Record<string, Journal[]>);
 
   const toggleFile = (monthKey: string, month: any) => {
-    // Only allow expansion of current month
-    if (!month.isCurrentMonth) {
+    // Restrict access to future months only
+    if (month.isFutureMonth) {
       toast({
         title: "Access Restricted",
-        description: month.isPastMonth 
-          ? "Past journal entries are read-only" 
-          : "Future months are not yet available",
+        description: "Future months are not yet available",
         variant: "destructive",
       });
       return;
@@ -367,12 +365,12 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
                   <button
                     onClick={() => toggleFile(month.key, month)}
                     className="group relative w-full"
-                    disabled={!month.isCurrentMonth}
+                    disabled={month.isFutureMonth}
                   >
                     {/* File Spine - Tilted */}
-                    <div className={`w-16 h-48 bg-gradient-to-b ${fileColor} rounded-t-lg shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-l-4 border-r-4 border-opacity-30 border-white relative ${tiltAngle} ${!month.isCurrentMonth ? 'opacity-70' : ''}`}>
-                      {/* Lock Icon for Restricted Months */}
-                      {!month.isCurrentMonth && (
+                    <div className={`w-16 h-48 bg-gradient-to-b ${fileColor} rounded-t-lg shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-l-4 border-r-4 border-opacity-30 border-white relative ${tiltAngle} ${month.isFutureMonth ? 'opacity-50' : ''}`}>
+                      {/* Lock Icon for Future Months Only */}
+                      {month.isFutureMonth && (
                         <div className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 shadow-md">
                           <Lock className="h-3 w-3 text-white" />
                         </div>
@@ -402,8 +400,8 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
                         <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-1 w-2 h-2 bg-yellow-400 rounded-full shadow-md animate-pulse"></div>
                       )}
                       
-                      {/* Expansion Icon - Only for Current Month */}
-                      {month.isCurrentMonth && (
+                      {/* Expansion Icon - For Current and Past Months */}
+                      {!month.isFutureMonth && (
                         <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md group-hover:bg-gray-100 transition-colors">
                           <ChevronRight className="h-3 w-3 text-gray-600" />
                         </div>
@@ -423,12 +421,12 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
             <span>Current Month (Click to Expand)</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-gradient-to-b from-gray-500 to-gray-700 rounded opacity-70"></div>
-            <span>Past Months</span>
+            <div className="w-4 h-4 bg-gradient-to-b from-gray-500 to-gray-700 rounded"></div>
+            <span>Past Months (Read-only)</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded opacity-70"></div>
-            <span>Future Months</span>
+            <div className="w-4 h-4 bg-gradient-to-b from-blue-400 to-blue-600 rounded opacity-50"></div>
+            <span>Future Months (Locked)</span>
           </div>
         </div>
       </div>
