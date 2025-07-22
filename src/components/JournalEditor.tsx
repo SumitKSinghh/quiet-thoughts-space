@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Calendar as CalendarIcon, Plus, Trash2, Save } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,8 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [date, setDate] = useState<Date>(selectedDate);
+  const [journalType, setJournalType] = useState<'gratitude' | 'fitness' | 'dreams' | 'daily'>('daily');
+  const [mood, setMood] = useState<'excellent' | 'good' | 'neutral' | 'bad' | 'terrible' | ''>('');
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState('');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -42,12 +45,16 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
       setContent(journal.content || '');
       setTitle(journal.title || '');
       setDate(new Date(journal.entry_date) || selectedDate);
+      setJournalType(journal.journal_type || 'daily');
+      setMood(journal.mood || '');
       // Load todos for this journal
       loadTodos(journal.id);
     } else {
       setContent('');
       setTitle('');
       setDate(selectedDate);
+      setJournalType('daily');
+      setMood('');
       setTodos([]);
     }
   }, [journal, selectedDate]);
@@ -115,6 +122,8 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
             title: title.trim() || null,
             content: content.trim(),
             entry_date: format(date, 'yyyy-MM-dd'),
+            journal_type: journalType,
+            mood: mood || null,
           })
           .eq('id', journal.id);
 
@@ -122,12 +131,14 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
       } else {
         const { data, error } = await supabase
           .from('journals')
-          .insert({
+          .insert([{
             user_id: user.id,
             title: title.trim() || null,
             content: content.trim(),
             entry_date: format(date, 'yyyy-MM-dd'),
-          })
+            journal_type: journalType,
+            mood: mood || null,
+          }])
           .select()
           .single();
 
@@ -243,6 +254,48 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
                   />
                 </PopoverContent>
               </Popover>
+            </CardContent>
+          </Card>
+
+          {/* Journal Type and Mood */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Journal Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="journal-type">Journal Type</Label>
+                  <Select value={journalType} onValueChange={(value) => setJournalType(value as 'gratitude' | 'fitness' | 'dreams' | 'daily')}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select journal type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">📝 Daily Journal</SelectItem>
+                      <SelectItem value="gratitude">🙏 Gratitude</SelectItem>
+                      <SelectItem value="fitness">💪 Fitness</SelectItem>
+                      <SelectItem value="dreams">💭 Dreams</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="mood">Mood (Optional)</Label>
+                  <Select value={mood} onValueChange={(value) => setMood(value as 'excellent' | 'good' | 'neutral' | 'bad' | 'terrible' | '')}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="How are you feeling?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">No mood selected</SelectItem>
+                      <SelectItem value="excellent">😄 Excellent</SelectItem>
+                      <SelectItem value="good">😊 Good</SelectItem>
+                      <SelectItem value="neutral">😐 Neutral</SelectItem>
+                      <SelectItem value="bad">😞 Bad</SelectItem>
+                      <SelectItem value="terrible">😢 Terrible</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardContent>
           </Card>
 

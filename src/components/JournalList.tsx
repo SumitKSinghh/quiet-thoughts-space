@@ -19,6 +19,8 @@ interface Journal {
   content: string;
   entry_date: string;
   created_at: string;
+  journal_type: string;
+  mood: string | null;
   todos: Todo[];
 }
 
@@ -122,6 +124,37 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
     return todos.filter(todo => todo.completed).length;
   };
 
+  const getJournalTypeIcon = (type: string) => {
+    switch (type) {
+      case 'gratitude': return '🙏';
+      case 'fitness': return '💪';
+      case 'dreams': return '💭';
+      case 'daily': 
+      default: return '📝';
+    }
+  };
+
+  const getJournalTypeName = (type: string) => {
+    switch (type) {
+      case 'gratitude': return 'Gratitude';
+      case 'fitness': return 'Fitness';
+      case 'dreams': return 'Dreams';
+      case 'daily': 
+      default: return 'Daily Journal';
+    }
+  };
+
+  const getMoodIcon = (mood: string) => {
+    switch (mood) {
+      case 'excellent': return '😄';
+      case 'good': return '😊';
+      case 'neutral': return '😐';
+      case 'bad': return '😞';
+      case 'terrible': return '😢';
+      default: return '😐';
+    }
+  };
+
   // Group journals by month
   const groupedJournals = journals.reduce((groups, journal) => {
     const monthKey = format(new Date(journal.entry_date), 'MMMM yyyy');
@@ -220,10 +253,10 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-xl font-bold text-gray-800 mb-2 leading-tight">
-                        📝 {journal.title || `Journal Entry ${index + 1}`}
+                        {getJournalTypeIcon(journal.journal_type)} {journal.title || `${getJournalTypeName(journal.journal_type)} Entry ${index + 1}`}
                       </CardTitle>
                       
-                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <div className="flex items-center flex-wrap gap-4 text-sm text-gray-600">
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 mr-2" />
                           <span className="font-medium">{formatDate(journal.entry_date)}</span>
@@ -232,6 +265,15 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
                           <Clock className="h-4 w-4 mr-2" />
                           <span>{formatTime(journal.created_at)}</span>
                         </div>
+                        <Badge variant="outline" className="text-xs">
+                          {getJournalTypeName(journal.journal_type)}
+                        </Badge>
+                        {journal.mood && (
+                          <div className="flex items-center space-x-1">
+                            <span>{getMoodIcon(journal.mood)}</span>
+                            <span className="capitalize">{journal.mood}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     

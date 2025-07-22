@@ -50,6 +50,8 @@ export type Database = {
           created_at: string
           entry_date: string
           id: string
+          journal_type: Database["public"]["Enums"]["journal_type"]
+          mood: Database["public"]["Enums"]["mood_type"] | null
           title: string | null
           updated_at: string
           user_id: string
@@ -59,6 +61,8 @@ export type Database = {
           created_at?: string
           entry_date: string
           id?: string
+          journal_type?: Database["public"]["Enums"]["journal_type"]
+          mood?: Database["public"]["Enums"]["mood_type"] | null
           title?: string | null
           updated_at?: string
           user_id: string
@@ -68,6 +72,8 @@ export type Database = {
           created_at?: string
           entry_date?: string
           id?: string
+          journal_type?: Database["public"]["Enums"]["journal_type"]
+          mood?: Database["public"]["Enums"]["mood_type"] | null
           title?: string | null
           updated_at?: string
           user_id?: string
@@ -168,7 +174,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      journal_type: "gratitude" | "fitness" | "dreams" | "daily"
+      mood_type: "excellent" | "good" | "neutral" | "bad" | "terrible"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -295,6 +302,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      journal_type: ["gratitude", "fitness", "dreams", "daily"],
+      mood_type: ["excellent", "good", "neutral", "bad", "terrible"],
+    },
   },
 } as const
