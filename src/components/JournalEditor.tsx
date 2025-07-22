@@ -44,7 +44,8 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
     if (journal) {
       setContent(journal.content || '');
       setTitle(journal.title || '');
-      setDate(new Date(journal.entry_date) || selectedDate);
+      const journalDate = new Date(journal.entry_date);
+      setDate(isNaN(journalDate.getTime()) ? selectedDate : journalDate);
       setJournalType(journal.journal_type || 'daily');
       setMood(journal.mood || '');
       // Load todos for this journal
