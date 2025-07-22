@@ -21,8 +21,11 @@ const Dashboard = () => {
   const { toast } = useToast();
 
   const handleCreateNew = () => {
+    console.log('Creating new journal entry');
+    console.log('Selected date:', selectedDate);
     setSelectedJournal(null);
     setActiveView('create');
+    console.log('Active view set to:', 'create');
   };
 
   const handleEditJournal = (journal: any) => {

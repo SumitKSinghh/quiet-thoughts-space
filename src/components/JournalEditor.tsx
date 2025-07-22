@@ -29,6 +29,8 @@ interface JournalEditorProps {
 }
 
 const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorProps) => {
+  console.log('JournalEditor rendering with:', { journal, selectedDate });
+  
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [date, setDate] = useState<Date>(selectedDate);
