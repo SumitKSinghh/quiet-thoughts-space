@@ -43,22 +43,29 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
   const { toast } = useToast();
 
   useEffect(() => {
-    if (journal) {
-      setContent(journal.content || '');
-      setTitle(journal.title || '');
-      const journalDate = new Date(journal.entry_date);
-      setDate(isNaN(journalDate.getTime()) ? selectedDate : journalDate);
-      setJournalType(journal.journal_type || 'daily');
-      setMood(journal.mood || '');
-      // Load todos for this journal
-      loadTodos(journal.id);
-    } else {
-      setContent('');
-      setTitle('');
-      setDate(selectedDate);
-      setJournalType('daily');
-      setMood('');
-      setTodos([]);
+    console.log('JournalEditor useEffect triggered', { journal, selectedDate });
+    try {
+      if (journal) {
+        console.log('Editing existing journal:', journal);
+        setContent(journal.content || '');
+        setTitle(journal.title || '');
+        const journalDate = new Date(journal.entry_date);
+        setDate(isNaN(journalDate.getTime()) ? selectedDate : journalDate);
+        setJournalType(journal.journal_type || 'daily');
+        setMood(journal.mood || '');
+        // Load todos for this journal
+        loadTodos(journal.id);
+      } else {
+        console.log('Creating new journal with date:', selectedDate);
+        setContent('');
+        setTitle('');
+        setDate(selectedDate);
+        setJournalType('daily');
+        setMood('');
+        setTodos([]);
+      }
+    } catch (error) {
+      console.error('Error in JournalEditor useEffect:', error);
     }
   }, [journal, selectedDate]);
 
