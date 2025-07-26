@@ -65,11 +65,26 @@ const Dashboard = () => {
   }, [navigate, toast]);
 
   const handleCreateNew = () => {
-    console.log('Creating new journal entry');
-    console.log('Selected date:', selectedDate);
-    setSelectedJournal(null);
-    setActiveView('create');
-    console.log('Active view set to:', 'create');
+    console.log('=== NEW ENTRY BUTTON CLICKED ===');
+    console.log('Current state before changes:');
+    console.log('- activeView:', activeView);
+    console.log('- selectedDate:', selectedDate);
+    console.log('- selectedJournal:', selectedJournal);
+    
+    try {
+      console.log('Setting selectedJournal to null...');
+      setSelectedJournal(null);
+      
+      console.log('Setting activeView to create...');
+      setActiveView('create');
+      
+      console.log('State changes completed successfully');
+      console.log('New state should be:');
+      console.log('- activeView: create');
+      console.log('- selectedJournal: null');
+    } catch (error) {
+      console.error('ERROR in handleCreateNew:', error);
+    }
   };
 
   const handleEditJournal = (journal: any) => {
@@ -177,20 +192,44 @@ const Dashboard = () => {
 
           {/* Main Content */}
           <div className="lg:col-span-4">
+            {(() => {
+              console.log('=== DASHBOARD RENDERING MAIN CONTENT ===');
+              console.log('Current activeView:', activeView);
+              console.log('selectedJournal:', selectedJournal);
+              console.log('selectedDate:', selectedDate);
+              return null;
+            })()}
+            
             {activeView === 'list' && (
-              <JournalList
-                selectedDate={selectedDate}
-                onEditJournal={handleEditJournal}
-              />
+              <>
+                {(() => {
+                  console.log('Rendering JournalList');
+                  return null;
+                })()}
+                <JournalList
+                  selectedDate={selectedDate}
+                  onEditJournal={handleEditJournal}
+                />
+              </>
             )}
             
             {(activeView === 'create' || activeView === 'edit') && (
-              <JournalEditor
-                journal={selectedJournal}
-                selectedDate={selectedDate}
-                onBack={handleBackToList}
-                onSave={handleBackToList}
-              />
+              <>
+                {(() => {
+                  console.log('Rendering JournalEditor with props:', { 
+                    journal: selectedJournal, 
+                    selectedDate, 
+                    activeView 
+                  });
+                  return null;
+                })()}
+                <JournalEditor
+                  journal={selectedJournal}
+                  selectedDate={selectedDate}
+                  onBack={handleBackToList}
+                  onSave={handleBackToList}
+                />
+              </>
             )}
           </div>
         </div>

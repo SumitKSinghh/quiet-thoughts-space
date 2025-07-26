@@ -29,7 +29,16 @@ interface JournalEditorProps {
 }
 
 const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorProps) => {
-  console.log('JournalEditor rendering with:', { journal, selectedDate });
+  console.log('=== JOURNAL EDITOR COMPONENT RENDERING ===');
+  console.log('Props received:', { journal, selectedDate, onBack: !!onBack, onSave: !!onSave });
+  console.log('Journal prop type:', typeof journal);
+  console.log('Selected date type:', typeof selectedDate);
+  console.log('Selected date value:', selectedDate);
+  
+  if (!selectedDate) {
+    console.error('CRITICAL ERROR: selectedDate is undefined/null');
+    return <div>Error: No date selected</div>;
+  }
   
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
