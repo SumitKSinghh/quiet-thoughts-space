@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Calendar, BookOpen, LogOut, User } from 'lucide-react';
-import JournalEditor from '@/components/JournalEditor';
+import JournalEditorSimple from '@/components/JournalEditorSimple';
 import JournalList from '@/components/JournalList';
 import CalendarSidebar from '@/components/CalendarSidebar';
 import TodoSidebar from '@/components/TodoSidebar';
@@ -222,7 +222,7 @@ const Dashboard = () => {
                   });
                   return null;
                 })()}
-                <JournalEditor
+                <JournalEditorSimple
                   journal={selectedJournal}
                   selectedDate={selectedDate}
                   onBack={handleBackToList}

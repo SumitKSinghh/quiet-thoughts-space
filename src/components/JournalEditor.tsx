@@ -86,10 +86,17 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
         .eq('journal_id', journalId)
         .order('created_at');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading todos (non-critical):', error);
+        // Don't throw error, just log it and continue
+        setTodos([]);
+        return;
+      }
       setTodos(data || []);
     } catch (error: any) {
-      console.error('Error loading todos:', error);
+      console.error('Error loading todos (non-critical):', error);
+      // Don't throw error, just set empty todos
+      setTodos([]);
     }
   };
 
