@@ -9,7 +9,7 @@ import JournalList from '@/components/JournalList';
 import CalendarSidebar from '@/components/CalendarSidebar';
 import TodoSidebar from '@/components/TodoSidebar';
 import UnfinishedTasks from '@/components/UnfinishedTasks';
-import { GoogleCalendarIntegration } from '@/components/GoogleCalendarIntegration';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -185,7 +185,6 @@ const Dashboard = () => {
                 selectedDate={selectedDate}
                 onDateSelect={setSelectedDate}
               />
-              <GoogleCalendarIntegration />
               <TodoSidebar />
             </div>
           </div>
