@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,8 +17,52 @@ const Dashboard = () => {
   const [activeView, setActiveView] = useState<'list' | 'create' | 'edit'>('list');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Auth error:', error);
+          toast({
+            title: "Session expired",
+            description: "Please log in again.",
+            variant: "destructive",
+          });
+          navigate('/login');
+          return;
+        }
+
+        if (!session) {
+          console.log('No session found, redirecting to login');
+          navigate('/login');
+          return;
+        }
+
+        console.log('User authenticated, session valid');
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Authentication check failed:', error);
+        navigate('/login');
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, toast]);
 
   const handleCreateNew = () => {
     console.log('Creating new journal entry');
@@ -57,6 +101,18 @@ const Dashboard = () => {
       });
     }
   };
+
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 flex items-center justify-center">
+        <div className="text-center">
+          <BookOpen className="h-12 w-12 text-slate-600 mx-auto mb-4 animate-pulse" />
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50">
