@@ -11,12 +11,23 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
   ].filter(Boolean),
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+
+  // 🔐 Prevent usage of eval() to fix CSP issues
+  build: {
+    sourcemap: false, // avoids source maps that may use eval
+  },
+  esbuild: {
+    legalComments: 'none', // remove comments that may use eval
+  },
+  define: {
+    'process.env': {}, // prevent dynamic environment resolution using eval
   },
 }));
