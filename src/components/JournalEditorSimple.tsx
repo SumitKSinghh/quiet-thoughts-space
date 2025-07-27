@@ -28,7 +28,7 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
   const [title, setTitle] = useState('');
   const [date, setDate] = useState<Date>(selectedDate);
   const [journalType, setJournalType] = useState<'gratitude' | 'fitness' | 'dreams' | 'daily'>('daily');
-  const [mood, setMood] = useState<'excellent' | 'good' | 'neutral' | 'bad' | 'terrible' | ''>('');
+  const [mood, setMood] = useState<'excellent' | 'good' | 'neutral' | 'bad' | 'terrible' | 'none'>('none');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -42,14 +42,14 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
       const journalDate = new Date(journal.entry_date);
       setDate(isNaN(journalDate.getTime()) ? selectedDate : journalDate);
       setJournalType(journal.journal_type || 'daily');
-      setMood(journal.mood || '');
+      setMood(journal.mood || 'none');
     } else {
       console.log('Creating new journal entry');
       setContent('');
       setTitle('');
       setDate(selectedDate);
       setJournalType('daily');
-      setMood('');
+      setMood('none');
     }
   }, [journal, selectedDate]);
 
@@ -78,7 +78,7 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
             content: content.trim(),
             entry_date: format(date, 'yyyy-MM-dd'),
             journal_type: journalType,
-            mood: mood || null,
+            mood: mood === 'none' ? null : mood,
           })
           .eq('id', journal.id);
 
@@ -92,7 +92,7 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
             content: content.trim(),
             entry_date: format(date, 'yyyy-MM-dd'),
             journal_type: journalType,
-            mood: mood || null,
+            mood: mood === 'none' ? null : mood,
           }]);
 
         if (error) throw error;
@@ -203,12 +203,12 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
               
               <div className="space-y-2">
                 <Label htmlFor="mood">Mood (Optional)</Label>
-                <Select value={mood} onValueChange={(value) => setMood(value as 'excellent' | 'good' | 'neutral' | 'bad' | 'terrible' | '')}>
+                <Select value={mood} onValueChange={(value) => setMood(value as 'excellent' | 'good' | 'neutral' | 'bad' | 'terrible' | 'none')}>
                   <SelectTrigger>
                     <SelectValue placeholder="How are you feeling?" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No mood selected</SelectItem>
+                    <SelectItem value="none">No mood selected</SelectItem>
                     <SelectItem value="excellent">😄 Excellent</SelectItem>
                     <SelectItem value="good">😊 Good</SelectItem>
                     <SelectItem value="neutral">😐 Neutral</SelectItem>
