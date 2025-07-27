@@ -3,18 +3,21 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar, BookOpen, LogOut, User } from 'lucide-react';
+import { Plus, Calendar, BookOpen, LogOut, User, Mic, Target, BarChart3 } from 'lucide-react';
 import JournalEditorSimple from '@/components/JournalEditorSimple';
 import JournalList from '@/components/JournalList';
 import CalendarSidebar from '@/components/CalendarSidebar';
 import TodoSidebar from '@/components/TodoSidebar';
 import UnfinishedTasks from '@/components/UnfinishedTasks';
+import VoiceJournal from '@/components/VoiceJournal';
+import GoalTracker from '@/components/GoalTracker';
+import MoodInsights from '@/components/MoodInsights';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
-  const [activeView, setActiveView] = useState<'list' | 'create' | 'edit'>('list');
+  const [activeView, setActiveView] = useState<'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights'>('list');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -140,19 +143,51 @@ const Dashboard = () => {
               <h1 className="text-2xl font-bold text-white drop-shadow-md">Daily Journal</h1>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <Button
                 onClick={handleCreateNew}
                 className="bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg transform hover:scale-105 transition-all duration-200"
+                size="sm"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Entry
               </Button>
               
               <Button
+                onClick={() => setActiveView('voice')}
+                variant={activeView === 'voice' ? 'secondary' : 'outline'}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                size="sm"
+              >
+                <Mic className="h-4 w-4 mr-2" />
+                Voice
+              </Button>
+              
+              <Button
+                onClick={() => setActiveView('goals')}
+                variant={activeView === 'goals' ? 'secondary' : 'outline'}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                size="sm"
+              >
+                <Target className="h-4 w-4 mr-2" />
+                Goals
+              </Button>
+              
+              <Button
+                onClick={() => setActiveView('insights')}
+                variant={activeView === 'insights' ? 'secondary' : 'outline'}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                size="sm"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Insights
+              </Button>
+              
+              <Button
                 onClick={() => navigate('/profile')}
                 variant="outline"
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                size="sm"
               >
                 <User className="h-4 w-4 mr-2" />
                 Profile
@@ -162,6 +197,7 @@ const Dashboard = () => {
                 onClick={handleLogout}
                 variant="outline"
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                size="sm"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
@@ -229,6 +265,18 @@ const Dashboard = () => {
                   onSave={handleBackToList}
                 />
               </>
+            )}
+            
+            {activeView === 'voice' && (
+              <VoiceJournal onSave={handleBackToList} />
+            )}
+            
+            {activeView === 'goals' && (
+              <GoalTracker />
+            )}
+            
+            {activeView === 'insights' && (
+              <MoodInsights />
             )}
           </div>
         </div>
