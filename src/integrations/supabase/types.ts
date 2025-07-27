@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      goal_progress: {
+        Row: {
+          created_at: string
+          goal_id: string
+          id: string
+          logged_at: string
+          notes: string | null
+          progress_value: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goal_id: string
+          id?: string
+          logged_at?: string
+          notes?: string | null
+          progress_value: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goal_id?: string
+          id?: string
+          logged_at?: string
+          notes?: string | null
+          progress_value?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_progress_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          created_at: string
+          current_value: number
+          description: string | null
+          id: string
+          is_completed: boolean
+          target_date: string | null
+          target_value: number
+          title: string
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_value?: number
+          description?: string | null
+          id?: string
+          is_completed?: boolean
+          target_date?: string | null
+          target_value?: number
+          title: string
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number
+          description?: string | null
+          id?: string
+          is_completed?: boolean
+          target_date?: string | null
+          target_value?: number
+          title?: string
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       google_calendar_tokens: {
         Row: {
           access_token: string
@@ -46,6 +126,7 @@ export type Database = {
       }
       journals: {
         Row: {
+          audio_url: string | null
           content: string
           created_at: string
           entry_date: string
@@ -57,6 +138,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          audio_url?: string | null
           content: string
           created_at?: string
           entry_date: string
@@ -68,6 +150,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          audio_url?: string | null
           content?: string
           created_at?: string
           entry_date?: string
