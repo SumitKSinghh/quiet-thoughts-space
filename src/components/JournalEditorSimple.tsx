@@ -12,6 +12,8 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { JournalAttachments } from './JournalAttachments';
+import { uploadAttachments, loadAttachments, type Attachment } from './JournalAttachmentHelpers';
 
 interface JournalEditorProps {
   journal?: any;
@@ -31,26 +33,40 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
   const [mood, setMood] = useState<'excellent' | 'good' | 'neutral' | 'bad' | 'terrible' | 'none'>('none');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     console.log('Simple JournalEditor useEffect triggered');
-    if (journal) {
-      console.log('Editing existing journal:', journal);
-      setContent(journal.content || '');
-      setTitle(journal.title || '');
-      const journalDate = new Date(journal.entry_date);
-      setDate(isNaN(journalDate.getTime()) ? selectedDate : journalDate);
-      setJournalType(journal.journal_type || 'daily');
-      setMood(journal.mood || 'none');
-    } else {
-      console.log('Creating new journal entry');
-      setContent('');
-      setTitle('');
-      setDate(selectedDate);
-      setJournalType('daily');
-      setMood('none');
-    }
+    const initializeEditor = async () => {
+      if (journal) {
+        console.log('Editing existing journal:', journal);
+        setContent(journal.content || '');
+        setTitle(journal.title || '');
+        const journalDate = new Date(journal.entry_date);
+        setDate(isNaN(journalDate.getTime()) ? selectedDate : journalDate);
+        setJournalType(journal.journal_type || 'daily');
+        setMood(journal.mood || 'none');
+        
+        // Load existing attachments
+        try {
+          const journalAttachments = await loadAttachments(journal.id);
+          setAttachments(journalAttachments);
+        } catch (error) {
+          console.error('Error loading attachments:', error);
+        }
+      } else {
+        console.log('Creating new journal entry');
+        setContent('');
+        setTitle('');
+        setDate(selectedDate);
+        setJournalType('daily');
+        setMood('none');
+        setAttachments([]);
+      }
+    };
+    
+    initializeEditor();
   }, [journal, selectedDate]);
 
   const handleSave = async () => {
@@ -70,6 +86,8 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
       if (!user) throw new Error('User not authenticated');
 
       // Save or update journal entry (without todos for now)
+      let journalId: string;
+
       if (journal) {
         const { error } = await supabase
           .from('journals')
@@ -83,8 +101,9 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
           .eq('id', journal.id);
 
         if (error) throw error;
+        journalId = journal.id;
       } else {
-        const { error } = await supabase
+        const { data: newJournal, error } = await supabase
           .from('journals')
           .insert([{
             user_id: user.id,
@@ -93,9 +112,26 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
             entry_date: format(date, 'yyyy-MM-dd'),
             journal_type: journalType,
             mood: mood === 'none' ? null : mood,
-          }]);
+          }])
+          .select()
+          .single();
 
         if (error) throw error;
+        journalId = newJournal.id;
+      }
+
+      // Upload and save attachments
+      if (attachments.length > 0) {
+        try {
+          await uploadAttachments(attachments, journalId, user.id);
+        } catch (attachmentError) {
+          console.error('Error uploading attachments:', attachmentError);
+          toast({
+            title: "Warning",
+            description: "Journal saved but some attachments failed to upload.",
+            variant: "destructive",
+          });
+        }
       }
 
       toast({
@@ -247,6 +283,21 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="min-h-[300px] resize-none border-gray-200 focus:border-blue-500"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Attachments Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Attachments</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <JournalAttachments
+              journalId={journal?.id}
+              attachments={attachments}
+              onAttachmentsChange={setAttachments}
+              isEditing={true}
             />
           </CardContent>
         </Card>

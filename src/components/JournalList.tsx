@@ -6,6 +6,8 @@ import { Edit, Calendar, CheckSquare, Loader2, BookOpen, Clock, ChevronDown, Che
 import { format, isSameMonth, isBefore, isAfter, startOfMonth, endOfMonth } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { JournalAttachments } from './JournalAttachments';
+import { loadAttachments, type Attachment } from './JournalAttachmentHelpers';
 
 interface Todo {
   id: string;
@@ -22,6 +24,7 @@ interface Journal {
   journal_type: string;
   mood: string | null;
   todos: Todo[];
+  attachments?: Attachment[];
 }
 
 interface JournalListProps {
@@ -86,10 +89,21 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
 
           if (todosError) {
             console.error('Error loading todos for journal:', journal.id, todosError);
-            return { ...journal, todos: [] };
           }
 
-          return { ...journal, todos: todosData || [] };
+          // Load attachments for each journal
+          let attachments: Attachment[] = [];
+          try {
+            attachments = await loadAttachments(journal.id);
+          } catch (error) {
+            console.error('Error loading attachments for journal:', journal.id, error);
+          }
+
+          return { 
+            ...journal, 
+            todos: todosData || [], 
+            attachments 
+          };
         })
       );
 
@@ -337,6 +351,18 @@ const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {/* Attachments section */}
+                  {journal.attachments && journal.attachments.length > 0 && (
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border-2 border-purple-200">
+                      <JournalAttachments
+                        journalId={journal.id}
+                        attachments={journal.attachments}
+                        onAttachmentsChange={() => {}} // Read-only in view mode
+                        isEditing={false}
+                      />
                     </div>
                   )}
                 </CardContent>

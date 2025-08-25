@@ -14,6 +14,8 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { JournalAttachments } from './JournalAttachments';
+import { uploadAttachments, loadAttachments, type Attachment } from './JournalAttachmentHelpers';
 
 interface Todo {
   id: string;
@@ -46,6 +48,7 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
   const [journalType, setJournalType] = useState<'gratitude' | 'fitness' | 'dreams' | 'daily'>('daily');
   const [mood, setMood] = useState<'excellent' | 'good' | 'neutral' | 'bad' | 'terrible' | ''>('');
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [newTodo, setNewTodo] = useState('');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -351,6 +354,21 @@ const JournalEditor = ({ journal, selectedDate, onBack, onSave }: JournalEditorP
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="min-h-[300px] resize-none border-gray-200 focus:border-blue-500"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Attachments Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Attachments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <JournalAttachments
+                journalId={journal?.id}
+                attachments={attachments}
+                onAttachmentsChange={setAttachments}
+                isEditing={true}
               />
             </CardContent>
           </Card>
