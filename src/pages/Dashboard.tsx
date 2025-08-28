@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar, BookOpen, LogOut, User, Mic, Target, BarChart3 } from 'lucide-react';
+import { Plus, Calendar, BookOpen, LogOut, User, Mic, Target, BarChart3, Search } from 'lucide-react';
 import JournalEditorSimple from '@/components/JournalEditorSimple';
 import JournalList from '@/components/JournalList';
+import { JournalSearch } from '@/components/JournalSearch';
+import { JournalSearchResults } from '@/components/JournalSearchResults';
 import CalendarSidebar from '@/components/CalendarSidebar';
 import TodoSidebar from '@/components/TodoSidebar';
 import UnfinishedTasks from '@/components/UnfinishedTasks';
@@ -17,14 +19,61 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
-  const [activeView, setActiveView] = useState<'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights'>('list');
+  const [activeView, setActiveView] = useState<'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search'>('list');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [allJournals, setAllJournals] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check authentication on component mount
+  // Load all journals for search
+  useEffect(() => {
+    const loadJournals = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: journals, error } = await supabase
+          .from('journals')
+          .select(`
+            id, title, content, entry_date, mood, created_at,
+            journal_smart_tags (tag_type, tag_value, confidence_score)
+          `)
+          .eq('user_id', user.id)
+          .order('entry_date', { ascending: false });
+
+        if (error) throw error;
+
+        const journalsWithTags = journals?.map(journal => ({
+          ...journal,
+          smart_tags: journal.journal_smart_tags || []
+        })) || [];
+
+        setAllJournals(journalsWithTags);
+        setSearchResults(journalsWithTags);
+      } catch (error) {
+        console.error('Error loading journals:', error);
+      }
+    };
+
+    if (!isLoading) {
+      loadJournals();
+    }
+  }, [isLoading]);
+
+  const handleSearchResults = (results: any[]) => {
+    setSearchResults(results);
+    if (activeView !== 'search') {
+      setActiveView('search');
+    }
+  };
+
+  const handleSelectSearchResult = (journal: any) => {
+    setSelectedJournal(journal);
+    setActiveView('edit');
+  };
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -184,6 +233,16 @@ const Dashboard = () => {
               </Button>
               
               <Button
+                onClick={() => setActiveView('search')}
+                variant={activeView === 'search' ? 'secondary' : 'outline'}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                size="sm"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                Search
+              </Button>
+              
+              <Button
                 onClick={() => navigate('/profile')}
                 variant="outline"
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
@@ -234,6 +293,19 @@ const Dashboard = () => {
               console.log('selectedDate:', selectedDate);
               return null;
             })()}
+            
+            {activeView === 'search' && (
+              <div className="space-y-6">
+                <JournalSearch
+                  onResults={handleSearchResults}
+                  allEntries={allJournals}
+                />
+                <JournalSearchResults
+                  results={searchResults}
+                  onSelectJournal={handleSelectSearchResult}
+                />
+              </div>
+            )}
             
             {activeView === 'list' && (
               <>

@@ -160,6 +160,39 @@ export type Database = {
         }
         Relationships: []
       }
+      journal_smart_tags: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          id: string
+          journal_id: string
+          tag_type: string
+          tag_value: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          journal_id: string
+          tag_type: string
+          tag_value: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          journal_id?: string
+          tag_type?: string
+          tag_value?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       journals: {
         Row: {
           audio_url: string | null

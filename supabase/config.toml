@@ -1,1 +1,37 @@
 project_id = "fghyvuzhklnmflfwolxo"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54320
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_confirmations = false
+
+[edge_functions]
+enabled = true
+
+[functions.google-calendar]
+verify_jwt = false
+
+[functions.voice-to-text]
+verify_jwt = true
+
+[functions.analyze-journal-entry]
+verify_jwt = false
+
+[functions.search-journal-natural]
+verify_jwt = true
+
+[db]
+port = 54322

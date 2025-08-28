@@ -134,6 +134,21 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
         }
       }
 
+      // Generate smart tags for the journal entry
+      try {
+        await supabase.functions.invoke('analyze-journal-entry', {
+          body: {
+            journalId: journalId,
+            content: content.trim(),
+            title: title.trim() || null
+          }
+        });
+        console.log('Smart tags generated successfully');
+      } catch (tagError) {
+        console.error('Failed to generate smart tags:', tagError);
+        // Don't fail the save operation if tag generation fails
+      }
+
       toast({
         title: "Journal saved",
         description: "Your entry has been saved successfully.",
