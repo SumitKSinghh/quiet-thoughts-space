@@ -84,19 +84,17 @@ export const loadAttachments = async (journalId: string): Promise<Attachment[]> 
     return [];
   }
 
-  // Get signed URLs for all attachments
-  const attachmentsWithUrls = await Promise.all(
-    attachments.map(async (attachment) => {
-      const { data: urlData } = await supabase.storage
-        .from('journal-media')
-        .createSignedUrl(attachment.file_path, 60 * 60 * 24); // 24 hours
+  // Use public URLs since the bucket is public
+  const attachmentsWithUrls = attachments.map((attachment) => {
+    const { data: urlData } = supabase.storage
+      .from('journal-media')
+      .getPublicUrl(attachment.file_path);
 
-      return {
-        ...attachment,
-        url: urlData?.signedUrl,
-      };
-    })
-  );
+    return {
+      ...attachment,
+      url: urlData.publicUrl,
+    };
+  });
 
   return attachmentsWithUrls;
 };

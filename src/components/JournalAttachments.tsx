@@ -140,6 +140,42 @@ export const JournalAttachments: React.FC<JournalAttachmentsProps> = ({
   const renderAttachmentPreview = (attachment: Attachment, index: number) => {
     const isImage = attachment.file_type.startsWith('image/');
     const isVideo = attachment.file_type.startsWith('video/');
+    const [imageError, setImageError] = useState(false);
+    const [imageLoading, setImageLoading] = useState(true);
+
+    // Generate the correct URL for the attachment
+    const getAttachmentUrl = (attachment: Attachment): string => {
+      // If it's a new file (has File object), use blob URL
+      if (attachment.file && attachment.url?.startsWith('blob:')) {
+        return attachment.url;
+      }
+      
+      // If it already has a signed URL, use it
+      if (attachment.url && !attachment.url.startsWith('blob:')) {
+        return attachment.url;
+      }
+      
+      // Generate public URL for stored files
+      if (attachment.file_path) {
+        const { data } = supabase.storage
+          .from('journal-media')
+          .getPublicUrl(attachment.file_path);
+        return data.publicUrl;
+      }
+      
+      return '';
+    };
+
+    const handleImageLoad = () => {
+      setImageLoading(false);
+      setImageError(false);
+    };
+
+    const handleImageError = () => {
+      setImageLoading(false);
+      setImageError(true);
+      console.error('Failed to load image:', attachment.file_name, attachment.url);
+    };
 
     return (
       <Card key={index} className="relative group">
@@ -148,7 +184,7 @@ export const JournalAttachments: React.FC<JournalAttachmentsProps> = ({
             <Button
               variant="destructive"
               size="sm"
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={() => removeAttachment(index)}
             >
               <X className="h-4 w-4" />
@@ -157,11 +193,28 @@ export const JournalAttachments: React.FC<JournalAttachmentsProps> = ({
 
           {isImage && (
             <div className="space-y-2">
-              <img
-                src={attachment.url}
-                alt={attachment.file_name}
-                className="w-full h-32 object-cover rounded-md bg-muted"
-              />
+              <div className="relative w-full h-32 rounded-md bg-muted overflow-hidden">
+                {imageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                  </div>
+                )}
+                {imageError ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
+                    <Image className="h-8 w-8 mb-2" />
+                    <span className="text-xs">Failed to load</span>
+                  </div>
+                ) : (
+                  <img
+                    src={getAttachmentUrl(attachment)}
+                    alt={attachment.file_name}
+                    className="w-full h-full object-cover"
+                    onLoad={handleImageLoad}
+                    onError={handleImageError}
+                    style={{ display: imageLoading ? 'none' : 'block' }}
+                  />
+                )}
+              </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {getFileIcon(attachment.file_type)}
                 <span className="truncate">{attachment.file_name}</span>
@@ -172,12 +225,15 @@ export const JournalAttachments: React.FC<JournalAttachmentsProps> = ({
 
           {isVideo && (
             <div className="space-y-2">
-              <video
-                src={attachment.url}
-                controls
-                className="w-full h-32 rounded-md bg-muted"
-                preload="metadata"
-              />
+              <div className="relative w-full h-32 rounded-md bg-muted overflow-hidden">
+                <video
+                  src={getAttachmentUrl(attachment)}
+                  controls
+                  className="w-full h-full object-cover"
+                  preload="metadata"
+                  onError={() => console.error('Failed to load video:', attachment.file_name)}
+                />
+              </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {getFileIcon(attachment.file_type)}
                 <span className="truncate">{attachment.file_name}</span>
