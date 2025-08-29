@@ -23,45 +23,108 @@ const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [allJournals, setAllJournals] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [authError, setAuthError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Load all journals for search
+  // Combined authentication and data loading
   useEffect(() => {
-    const loadJournals = async () => {
+    let isMounted = true;
+    
+    const initializeDashboard = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        setIsLoading(true);
+        setAuthError(null);
+        
+        // Check authentication
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          throw new Error(`Authentication error: ${sessionError.message}`);
+        }
 
-        const { data: journals, error } = await supabase
+        if (!session?.user) {
+          console.log('No active session, redirecting to login');
+          if (isMounted) {
+            navigate('/login', { replace: true });
+          }
+          return;
+        }
+
+        console.log('User authenticated, loading dashboard data');
+        
+        // Load journals data
+        const { data: journals, error: journalsError } = await supabase
           .from('journals')
           .select(`
             id, title, content, entry_date, mood, created_at,
             journal_smart_tags (tag_type, tag_value, confidence_score)
           `)
-          .eq('user_id', user.id)
+          .eq('user_id', session.user.id)
           .order('entry_date', { ascending: false });
 
-        if (error) throw error;
+        if (journalsError) {
+          console.error('Error loading journals:', journalsError);
+          // Don't fail the entire dashboard for journal loading errors
+        }
 
-        const journalsWithTags = journals?.map(journal => ({
-          ...journal,
-          smart_tags: journal.journal_smart_tags || []
-        })) || [];
+        if (isMounted) {
+          const journalsWithTags = journals?.map(journal => ({
+            ...journal,
+            smart_tags: journal.journal_smart_tags || []
+          })) || [];
 
-        setAllJournals(journalsWithTags);
-        setSearchResults(journalsWithTags);
-      } catch (error) {
-        console.error('Error loading journals:', error);
+          setAllJournals(journalsWithTags);
+          setSearchResults(journalsWithTags);
+          setIsInitialized(true);
+        }
+
+      } catch (error: any) {
+        console.error('Dashboard initialization failed:', error);
+        
+        if (isMounted) {
+          setAuthError(error.message || 'Failed to load dashboard');
+          
+          // If it's an auth error, redirect to login
+          if (error.message?.includes('authentication') || error.message?.includes('session')) {
+            toast({
+              title: "Session expired",
+              description: "Please log in again.",
+              variant: "destructive",
+            });
+            navigate('/login', { replace: true });
+          }
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    if (!isLoading) {
-      loadJournals();
-    }
-  }, [isLoading]);
+    initializeDashboard();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        console.log('Auth state changed: signed out');
+        if (isMounted) {
+          navigate('/login', { replace: true });
+        }
+      } else if (event === 'SIGNED_IN' && !isInitialized) {
+        // Reload dashboard if user signs in and dashboard isn't initialized
+        initializeDashboard();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast, isInitialized]);
 
   const handleSearchResults = (results: any[]) => {
     setSearchResults(results);
@@ -74,47 +137,6 @@ const Dashboard = () => {
     setSelectedJournal(journal);
     setActiveView('edit');
   };
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Auth error:', error);
-          toast({
-            title: "Session expired",
-            description: "Please log in again.",
-            variant: "destructive",
-          });
-          navigate('/login');
-          return;
-        }
-
-        if (!session) {
-          console.log('No session found, redirecting to login');
-          navigate('/login');
-          return;
-        }
-
-        console.log('User authenticated, session valid');
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Authentication check failed:', error);
-        navigate('/login');
-      }
-    };
-
-    checkAuth();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate('/login');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate, toast]);
 
   const handleCreateNew = () => {
     console.log('=== NEW ENTRY BUTTON CLICKED ===');
@@ -169,13 +191,47 @@ const Dashboard = () => {
     }
   };
 
-  // Show loading screen while checking authentication
+  // Show loading screen while checking authentication and loading data
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="h-12 w-12 text-slate-600 mx-auto mb-4 animate-pulse" />
-          <p className="text-slate-600">Loading...</p>
+          <p className="text-slate-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error screen if there's an authentication or loading error
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <BookOpen className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Error</h2>
+          <p className="text-gray-600 mb-4">{authError}</p>
+          <Button 
+            onClick={() => {
+              setAuthError(null);
+              navigate('/login', { replace: true });
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Only render dashboard if we're initialized and authenticated
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 flex items-center justify-center">
+        <div className="text-center">
+          <BookOpen className="h-12 w-12 text-slate-600 mx-auto mb-4 animate-pulse" />
+          <p className="text-slate-600">Initializing dashboard...</p>
         </div>
       </div>
     );
