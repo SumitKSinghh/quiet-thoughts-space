@@ -23,9 +23,6 @@ interface JournalEditorProps {
 }
 
 const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalEditorProps) => {
-  console.log('=== SIMPLE JOURNAL EDITOR RENDERING ===');
-  console.log('Props:', { journal, selectedDate });
-  
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [date, setDate] = useState<Date>(selectedDate);
@@ -143,7 +140,6 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
             title: title.trim() || null
           }
         });
-        console.log('Smart tags generated successfully');
       } catch (tagError) {
         console.error('Failed to generate smart tags:', tagError);
         // Don't fail the save operation if tag generation fails

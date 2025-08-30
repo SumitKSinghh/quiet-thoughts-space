@@ -47,14 +47,11 @@ const Dashboard = () => {
         }
 
         if (!session?.user) {
-          console.log('No active session, redirecting to login');
           if (isMounted) {
             navigate('/login', { replace: true });
           }
           return;
         }
-
-        console.log('User authenticated, loading dashboard data');
         
         // Load journals data
         const { data: journals, error: journalsError } = await supabase
@@ -110,7 +107,6 @@ const Dashboard = () => {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
-        console.log('Auth state changed: signed out');
         if (isMounted) {
           navigate('/login', { replace: true });
         }
@@ -139,26 +135,8 @@ const Dashboard = () => {
   };
 
   const handleCreateNew = () => {
-    console.log('=== NEW ENTRY BUTTON CLICKED ===');
-    console.log('Current state before changes:');
-    console.log('- activeView:', activeView);
-    console.log('- selectedDate:', selectedDate);
-    console.log('- selectedJournal:', selectedJournal);
-    
-    try {
-      console.log('Setting selectedJournal to null...');
-      setSelectedJournal(null);
-      
-      console.log('Setting activeView to create...');
-      setActiveView('create');
-      
-      console.log('State changes completed successfully');
-      console.log('New state should be:');
-      console.log('- activeView: create');
-      console.log('- selectedJournal: null');
-    } catch (error) {
-      console.error('ERROR in handleCreateNew:', error);
-    }
+    setSelectedJournal(null);
+    setActiveView('create');
   };
 
   const handleEditJournal = (journal: any) => {
@@ -342,13 +320,6 @@ const Dashboard = () => {
 
           {/* Main Content */}
           <div className="lg:col-span-4">
-            {(() => {
-              console.log('=== DASHBOARD RENDERING MAIN CONTENT ===');
-              console.log('Current activeView:', activeView);
-              console.log('selectedJournal:', selectedJournal);
-              console.log('selectedDate:', selectedDate);
-              return null;
-            })()}
             
             {activeView === 'search' && (
               <div className="space-y-6">
@@ -365,10 +336,6 @@ const Dashboard = () => {
             
             {activeView === 'list' && (
               <>
-                {(() => {
-                  console.log('Rendering JournalList');
-                  return null;
-                })()}
                 <JournalList
                   selectedDate={selectedDate}
                   onEditJournal={handleEditJournal}
@@ -378,14 +345,6 @@ const Dashboard = () => {
             
             {(activeView === 'create' || activeView === 'edit') && (
               <>
-                {(() => {
-                  console.log('Rendering JournalEditor with props:', { 
-                    journal: selectedJournal, 
-                    selectedDate, 
-                    activeView 
-                  });
-                  return null;
-                })()}
                 <JournalEditorSimple
                   journal={selectedJournal}
                   selectedDate={selectedDate}
