@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      dreams: {
+        Row: {
+          analysis: Json | null
+          created_at: string
+          dream_text: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis?: Json | null
+          created_at?: string
+          dream_text: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis?: Json | null
+          created_at?: string
+          dream_text?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       goal_progress: {
         Row: {
           created_at: string

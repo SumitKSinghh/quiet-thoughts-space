@@ -33,5 +33,8 @@ verify_jwt = false
 [functions.search-journal-natural]
 verify_jwt = true
 
+[functions.analyze-dream]
+verify_jwt = true
+
 [db]
 port = 54322
