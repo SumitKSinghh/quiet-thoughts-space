@@ -81,6 +81,7 @@ export type Database = {
       }
       goals: {
         Row: {
+          analysis: Json | null
           created_at: string
           current_value: number
           description: string | null
@@ -94,6 +95,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          analysis?: Json | null
           created_at?: string
           current_value?: number
           description?: string | null
@@ -107,6 +109,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          analysis?: Json | null
           created_at?: string
           current_value?: number
           description?: string | null

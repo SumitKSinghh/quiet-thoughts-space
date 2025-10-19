@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Target, TrendingUp, Calendar, Edit, Trash2 } from 'lucide-react';
+import { Plus, Target, TrendingUp, Calendar, Edit, Trash2, Sparkles, Loader2, Users, BookOpen } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Goal {
   id: string;
@@ -21,6 +24,36 @@ interface Goal {
   target_date: string;
   is_completed: boolean;
   created_at: string;
+  analysis?: DreamAnalysis;
+}
+
+interface DreamAnalysis {
+  summary: string;
+  category: string;
+  feasibility: string;
+  uniqueness: string;
+  timeframe: string;
+  keySteps: string[];
+  challenges: string[];
+  resources: string[];
+  actionPlan?: {
+    milestones: Array<{
+      title: string;
+      timeframe: string;
+      actions: string[];
+      metrics: string;
+    }>;
+    dailyHabits: string[];
+    weeklyGoals: string[];
+    monthlyReview: string[];
+    networking: string[];
+    skills: string[];
+  };
+  inspiringExamples?: Array<{
+    title: string;
+    description: string;
+    url: string;
+  }>;
 }
 
 const GoalTracker: React.FC = () => {
@@ -28,6 +61,8 @@ const GoalTracker: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [analyzingGoalId, setAnalyzingGoalId] = useState<string | null>(null);
+  const [selectedGoalForAnalysis, setSelectedGoalForAnalysis] = useState<Goal | null>(null);
   
   // Form state
   const [title, setTitle] = useState('');
@@ -55,9 +90,8 @@ const GoalTracker: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setGoals(data || []);
+      setGoals((data || []) as unknown as Goal[]);
     } catch (error) {
-      console.error('Error fetching goals:', error);
       toast({
         title: "Error",
         description: "Could not load goals",
@@ -115,7 +149,6 @@ const GoalTracker: React.FC = () => {
       };
 
       if (editingGoal) {
-        // Update existing goal
         const { error } = await supabase
           .from('goals')
           .update(goalData)
@@ -128,7 +161,6 @@ const GoalTracker: React.FC = () => {
           description: "Your goal has been updated successfully",
         });
       } else {
-        // Create new goal
         const { error } = await supabase
           .from('goals')
           .insert([goalData]);
@@ -145,12 +177,48 @@ const GoalTracker: React.FC = () => {
       resetForm();
       fetchGoals();
     } catch (error) {
-      console.error('Error saving goal:', error);
       toast({
         title: "Save failed",
         description: "Could not save your goal",
         variant: "destructive",
       });
+    }
+  };
+
+  const analyzeGoal = async (goal: Goal) => {
+    setAnalyzingGoalId(goal.id);
+    try {
+      const dreamText = `${goal.title}. ${goal.description || ''} Target: ${goal.target_value} ${goal.unit}${goal.target_date ? ` by ${format(new Date(goal.target_date), 'MMM yyyy')}` : ''}`;
+      
+      const { data, error } = await supabase.functions.invoke('analyze-dream', {
+        body: { dreamText, dreamId: null },
+      });
+
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error || 'Analysis failed');
+
+      // Update goal with analysis
+      const { error: updateError } = await supabase
+        .from('goals')
+        .update({ analysis: data.analysis })
+        .eq('id', goal.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Analysis complete!",
+        description: "Your goal has been analyzed with actionable insights.",
+      });
+      
+      fetchGoals();
+    } catch (error: any) {
+      toast({
+        title: "Analysis failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzingGoalId(null);
     }
   };
 
@@ -171,7 +239,6 @@ const GoalTracker: React.FC = () => {
 
       if (error) throw error;
 
-      // Log progress
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await supabase
@@ -193,7 +260,6 @@ const GoalTracker: React.FC = () => {
 
       fetchGoals();
     } catch (error) {
-      console.error('Error updating progress:', error);
       toast({
         title: "Update failed",
         description: "Could not update progress",
@@ -218,7 +284,6 @@ const GoalTracker: React.FC = () => {
       
       fetchGoals();
     } catch (error) {
-      console.error('Error deleting goal:', error);
       toast({
         title: "Delete failed",
         description: "Could not delete goal",
@@ -231,6 +296,15 @@ const GoalTracker: React.FC = () => {
     return Math.min((current / target) * 100, 100);
   };
 
+  const getFeasibilityColor = (feasibility: string) => {
+    switch (feasibility) {
+      case 'high': return 'bg-green-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
   if (isLoading) {
     return <div className="text-center py-8">Loading goals...</div>;
   }
@@ -238,10 +312,15 @@ const GoalTracker: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <Target className="h-6 w-6" />
-          Goal Progress Tracker
-        </h2>
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Target className="h-6 w-6" />
+            Goal Tracker & Dream Analyzer
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Track your progress and get AI-powered insights to achieve your dreams
+          </p>
+        </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -273,7 +352,7 @@ const GoalTracker: React.FC = () => {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Optional description..."
+                  placeholder="Describe your goal in detail..."
                   rows={3}
                 />
               </div>
@@ -352,97 +431,248 @@ const GoalTracker: React.FC = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-6">
           {goals.map((goal) => {
             const progressPercentage = getProgressPercentage(goal.current_value, goal.target_value);
             
             return (
               <Card key={goal.id} className={goal.is_completed ? 'border-green-200 bg-green-50' : ''}>
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{goal.title}</CardTitle>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openEditDialog(goal)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteGoal(goal.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                <Tabs defaultValue="progress" className="w-full">
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <CardTitle className="text-lg">{goal.title}</CardTitle>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => analyzeGoal(goal)}
+                          disabled={analyzingGoalId === goal.id}
+                          title="Get AI-powered insights"
+                        >
+                          {analyzingGoalId === goal.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditDialog(goal)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteGoal(goal.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  {goal.description && (
-                    <p className="text-sm text-muted-foreground">{goal.description}</p>
-                  )}
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Progress</span>
-                      <span className="font-medium">
-                        {goal.current_value} / {goal.target_value} {goal.unit}
-                      </span>
-                    </div>
-                    <Progress value={progressPercentage} className="h-2" />
-                    <div className="text-xs text-muted-foreground text-right">
-                      {progressPercentage.toFixed(1)}% complete
-                    </div>
-                  </div>
+                    {goal.description && (
+                      <p className="text-sm text-muted-foreground">{goal.description}</p>
+                    )}
+                    
+                    <TabsList className="mt-2">
+                      <TabsTrigger value="progress">Progress</TabsTrigger>
+                      {goal.analysis && <TabsTrigger value="analysis">AI Insights</TabsTrigger>}
+                    </TabsList>
+                  </CardHeader>
                   
-                  {goal.target_date && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      Target: {format(new Date(goal.target_date), 'MMM dd, yyyy')}
-                    </div>
-                  )}
-                  
-                  {goal.is_completed && (
-                    <div className="text-green-600 font-medium text-sm flex items-center gap-2">
-                      ✅ Goal Completed!
-                    </div>
-                  )}
-                  
-                  {!goal.is_completed && (
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        placeholder="Update progress"
-                        className="flex-1"
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            const value = parseFloat((e.target as HTMLInputElement).value);
-                            if (!isNaN(value)) {
-                              updateProgress(goal.id, value);
-                              (e.target as HTMLInputElement).value = '';
-                            }
-                          }
-                        }}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          const input = e.currentTarget.parentElement?.querySelector('input') as HTMLInputElement;
-                          const value = parseFloat(input.value);
-                          if (!isNaN(value)) {
-                            updateProgress(goal.id, value);
-                            input.value = '';
-                          }
-                        }}
-                      >
-                        <TrendingUp className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
+                  <CardContent>
+                    <TabsContent value="progress" className="space-y-4 mt-0">
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Progress</span>
+                          <span className="font-medium">
+                            {goal.current_value} / {goal.target_value} {goal.unit}
+                          </span>
+                        </div>
+                        <Progress value={progressPercentage} className="h-2" />
+                        <div className="text-xs text-muted-foreground text-right">
+                          {progressPercentage.toFixed(1)}% complete
+                        </div>
+                      </div>
+                      
+                      {goal.target_date && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                          Target: {format(new Date(goal.target_date), 'MMM dd, yyyy')}
+                        </div>
+                      )}
+                      
+                      {goal.is_completed && (
+                        <div className="text-green-600 font-medium text-sm flex items-center gap-2">
+                          ✅ Goal Completed!
+                        </div>
+                      )}
+                      
+                      {!goal.is_completed && (
+                        <div className="flex gap-2">
+                          <Input
+                            type="number"
+                            placeholder="Update progress"
+                            className="flex-1"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                const value = parseFloat((e.target as HTMLInputElement).value);
+                                if (!isNaN(value)) {
+                                  updateProgress(goal.id, value);
+                                  (e.target as HTMLInputElement).value = '';
+                                }
+                              }
+                            }}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              const input = e.currentTarget.parentElement?.querySelector('input') as HTMLInputElement;
+                              const value = parseFloat(input.value);
+                              if (!isNaN(value)) {
+                                updateProgress(goal.id, value);
+                                input.value = '';
+                              }
+                            }}
+                          >
+                            <TrendingUp className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </TabsContent>
+                    
+                    {goal.analysis && (
+                      <TabsContent value="analysis" className="space-y-4 mt-0">
+                        {/* Summary */}
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-3">{goal.analysis.summary}</p>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="secondary">{goal.analysis.category}</Badge>
+                            <Badge className={getFeasibilityColor(goal.analysis.feasibility)}>
+                              {goal.analysis.feasibility} feasibility
+                            </Badge>
+                            <Badge variant="outline">{goal.analysis.uniqueness}</Badge>
+                            <Badge variant="outline">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              {goal.analysis.timeframe}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Key Steps */}
+                        <div>
+                          <h4 className="font-semibold mb-2 flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4" />
+                            Key Steps
+                          </h4>
+                          <ol className="space-y-1 text-sm">
+                            {goal.analysis.keySteps.map((step, index) => (
+                              <li key={index} className="flex gap-2">
+                                <span className="font-semibold text-primary">{index + 1}.</span>
+                                <span>{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+
+                        {/* Action Plan Highlights */}
+                        {goal.analysis.actionPlan && (
+                          <>
+                            <Separator />
+                            <div className="space-y-3">
+                              {goal.analysis.actionPlan.dailyHabits && goal.analysis.actionPlan.dailyHabits.length > 0 && (
+                                <div>
+                                  <h4 className="font-semibold mb-2 text-sm">Daily Habits</h4>
+                                  <ul className="space-y-1">
+                                    {goal.analysis.actionPlan.dailyHabits.slice(0, 3).map((habit, i) => (
+                                      <li key={i} className="flex gap-2 text-xs">
+                                        <span>✓</span>
+                                        <span>{habit}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {goal.analysis.actionPlan.skills && goal.analysis.actionPlan.skills.length > 0 && (
+                                <div>
+                                  <h4 className="font-semibold mb-2 text-sm">Skills to Develop</h4>
+                                  <div className="flex flex-wrap gap-1">
+                                    {goal.analysis.actionPlan.skills.map((skill, i) => (
+                                      <Badge key={i} variant="outline" className="text-xs">{skill}</Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Challenges & Resources */}
+                        <Separator />
+                        <div className="grid gap-3 md:grid-cols-2">
+                          <div>
+                            <h4 className="font-semibold mb-2 text-sm">Challenges</h4>
+                            <ul className="space-y-1">
+                              {goal.analysis.challenges.slice(0, 3).map((challenge, index) => (
+                                <li key={index} className="flex gap-2 text-xs">
+                                  <span>⚠️</span>
+                                  <span>{challenge}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div>
+                            <h4 className="font-semibold mb-2 text-sm">Resources</h4>
+                            <ul className="space-y-1">
+                              {goal.analysis.resources.slice(0, 3).map((resource, index) => (
+                                <li key={index} className="flex gap-2 text-xs">
+                                  <span>📚</span>
+                                  <span>{resource}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+
+                        {/* Success Stories */}
+                        {goal.analysis.inspiringExamples && goal.analysis.inspiringExamples.length > 0 && (
+                          <>
+                            <Separator />
+                            <div>
+                              <h4 className="font-semibold mb-2 text-sm flex items-center gap-2">
+                                <Users className="h-4 w-4" />
+                                Success Stories
+                              </h4>
+                              <div className="space-y-2">
+                                {goal.analysis.inspiringExamples.slice(0, 2).map((example, index) => (
+                                  <div key={index} className="text-xs">
+                                    <a 
+                                      href={example.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-primary hover:underline font-medium"
+                                    >
+                                      {example.title}
+                                    </a>
+                                    <p className="text-muted-foreground line-clamp-2 mt-0.5">
+                                      {example.description}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </TabsContent>
+                    )}
+                  </CardContent>
+                </Tabs>
               </Card>
             );
           })}
