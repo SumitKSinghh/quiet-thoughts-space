@@ -36,86 +36,100 @@ const CommunityFeed = () => {
       // Fetch public journals
       const { data: publicJournals, error: journalsError } = await supabase
         .from("journals")
-        .select(`
-          id,
-          user_id,
-          entry_date,
-          title,
-          content,
-          mood,
-          created_at,
-          is_public,
-          profiles!journals_user_id_fkey (
-            full_name,
-            profile_picture_url
-          )
-        `)
+        .select("id, user_id, entry_date, title, content, mood, created_at, is_public")
         .eq("is_public", true)
         .order("created_at", { ascending: false });
 
       if (journalsError) throw journalsError;
 
+      // Fetch user profiles for journal authors
+      const journalUserIds = [...new Set((publicJournals || []).map(j => j.user_id))];
+      const { data: journalProfiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, profile_picture_url")
+        .in("user_id", journalUserIds);
+
+      const journalProfilesMap = new Map(
+        (journalProfiles || []).map((p: any) => [p.user_id, p])
+      );
+
       // Fetch reposts
       const { data: reposts, error: repostsError } = await supabase
         .from("community_posts")
-        .select(`
-          id,
-          created_at,
-          shared_by_user_id,
-          original_journal_id,
-          journals!community_posts_original_journal_id_fkey (
-            id,
-            user_id,
-            entry_date,
-            title,
-            content,
-            mood,
-            created_at,
-            profiles!journals_user_id_fkey (
-              full_name,
-              profile_picture_url
-            )
-          ),
-          profiles!community_posts_shared_by_user_id_fkey (
-            full_name
-          )
-        `)
+        .select("id, created_at, shared_by_user_id, original_journal_id")
         .order("created_at", { ascending: false });
 
       if (repostsError) throw repostsError;
 
-      // Combine and format posts
-      const formattedJournals: CommunityPost[] = (publicJournals || []).map((journal: any) => ({
-        id: journal.id,
-        user_id: journal.user_id,
-        entry_date: journal.entry_date,
-        title: journal.title,
-        content: journal.content,
-        mood: journal.mood,
-        created_at: journal.created_at,
-        is_public: journal.is_public,
-        author_name: journal.profiles?.full_name || "Anonymous",
-        author_avatar: journal.profiles?.profile_picture_url,
-        is_repost: false,
-      }));
+      // Fetch journals for reposts
+      const repostJournalIds = (reposts || []).map(r => r.original_journal_id);
+      const { data: repostJournals } = await supabase
+        .from("journals")
+        .select("id, user_id, entry_date, title, content, mood, created_at")
+        .in("id", repostJournalIds);
 
-      const formattedReposts: CommunityPost[] = (reposts || []).map((repost: any) => ({
-        id: repost.journals.id,
-        user_id: repost.journals.user_id,
-        entry_date: repost.journals.entry_date,
-        title: repost.journals.title,
-        content: repost.journals.content,
-        mood: repost.journals.mood,
-        created_at: repost.journals.created_at,
-        is_public: true,
-        author_name: repost.journals.profiles?.full_name || "Anonymous",
-        author_avatar: repost.journals.profiles?.profile_picture_url,
-        is_repost: true,
-        original_author_name: repost.journals.profiles?.full_name || "Anonymous",
-        original_author_id: repost.journals.user_id,
-        reposted_by_name: repost.profiles?.full_name || "Anonymous",
-        repost_created_at: repost.created_at,
-      }));
+      // Fetch profiles for repost authors and original authors
+      const repostUserIds = (reposts || []).map(r => r.shared_by_user_id);
+      const originalUserIds = (repostJournals || []).map(j => j.user_id);
+      const allRepostUserIds = [...new Set([...repostUserIds, ...originalUserIds])];
+      
+      const { data: repostProfiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, profile_picture_url")
+        .in("user_id", allRepostUserIds);
+
+      const repostProfilesMap = new Map(
+        (repostProfiles || []).map((p: any) => [p.user_id, p])
+      );
+
+      const repostJournalsMap = new Map(
+        (repostJournals || []).map((j: any) => [j.id, j])
+      );
+
+      // Format public journals
+      const formattedJournals: CommunityPost[] = (publicJournals || []).map((journal: any) => {
+        const profile = journalProfilesMap.get(journal.user_id);
+        return {
+          id: journal.id,
+          user_id: journal.user_id,
+          entry_date: journal.entry_date,
+          title: journal.title,
+          content: journal.content,
+          mood: journal.mood,
+          created_at: journal.created_at,
+          is_public: journal.is_public,
+          author_name: profile?.full_name || "Anonymous",
+          author_avatar: profile?.profile_picture_url,
+          is_repost: false,
+        };
+      });
+
+      // Format reposts
+      const formattedReposts: CommunityPost[] = (reposts || []).map((repost: any) => {
+        const journal = repostJournalsMap.get(repost.original_journal_id);
+        if (!journal) return null;
+
+        const originalProfile = repostProfilesMap.get(journal.user_id);
+        const repostProfile = repostProfilesMap.get(repost.shared_by_user_id);
+
+        return {
+          id: journal.id,
+          user_id: journal.user_id,
+          entry_date: journal.entry_date,
+          title: journal.title,
+          content: journal.content,
+          mood: journal.mood,
+          created_at: journal.created_at,
+          is_public: true,
+          author_name: originalProfile?.full_name || "Anonymous",
+          author_avatar: originalProfile?.profile_picture_url,
+          is_repost: true,
+          original_author_name: originalProfile?.full_name || "Anonymous",
+          original_author_id: journal.user_id,
+          reposted_by_name: repostProfile?.full_name || "Anonymous",
+          repost_created_at: repost.created_at,
+        };
+      }).filter(Boolean) as CommunityPost[];
 
       // Combine and sort by most recent
       const allPosts = [...formattedJournals, ...formattedReposts].sort(
