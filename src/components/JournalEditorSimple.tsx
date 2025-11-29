@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Calendar as CalendarIcon, Save } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { ArrowLeft, Calendar as CalendarIcon, Save, Globe } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +32,7 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [isPublic, setIsPublic] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -44,6 +46,7 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
         setDate(isNaN(journalDate.getTime()) ? selectedDate : journalDate);
         setJournalType(journal.journal_type || 'daily');
         setMood(journal.mood || 'none');
+        setIsPublic(journal.is_public || false);
         
         // Load existing attachments
         try {
@@ -60,6 +63,7 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
         setJournalType('daily');
         setMood('none');
         setAttachments([]);
+        setIsPublic(false);
       }
     };
     
@@ -94,6 +98,7 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
             entry_date: format(date, 'yyyy-MM-dd'),
             journal_type: journalType,
             mood: mood === 'none' ? null : mood,
+            is_public: isPublic,
           })
           .eq('id', journal.id);
 
@@ -109,6 +114,7 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
             entry_date: format(date, 'yyyy-MM-dd'),
             journal_type: journalType,
             mood: mood === 'none' ? null : mood,
+            is_public: isPublic,
           }])
           .select()
           .single();
@@ -310,6 +316,27 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
               onAttachmentsChange={setAttachments}
               isEditing={true}
             />
+          </CardContent>
+        </Card>
+
+        {/* Share to Community */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Community Sharing</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium">Share to Community</p>
+                  <p className="text-sm text-muted-foreground">
+                    Make this journal visible to other users in the community
+                  </p>
+                </div>
+              </div>
+              <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+            </div>
           </CardContent>
         </Card>
       </div>

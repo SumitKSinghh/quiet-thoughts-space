@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      community_posts: {
+        Row: {
+          created_at: string
+          id: string
+          original_journal_id: string
+          shared_by_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          original_journal_id: string
+          shared_by_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          original_journal_id?: string
+          shared_by_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_original_journal_id_fkey"
+            columns: ["original_journal_id"]
+            isOneToOne: false
+            referencedRelation: "journals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dreams: {
         Row: {
           analysis: Json | null
@@ -230,6 +259,7 @@ export type Database = {
           created_at: string
           entry_date: string
           id: string
+          is_public: boolean
           journal_type: Database["public"]["Enums"]["journal_type"]
           mood: Database["public"]["Enums"]["mood_type"] | null
           title: string | null
@@ -242,6 +272,7 @@ export type Database = {
           created_at?: string
           entry_date: string
           id?: string
+          is_public?: boolean
           journal_type?: Database["public"]["Enums"]["journal_type"]
           mood?: Database["public"]["Enums"]["mood_type"] | null
           title?: string | null
@@ -254,6 +285,7 @@ export type Database = {
           created_at?: string
           entry_date?: string
           id?: string
+          is_public?: boolean
           journal_type?: Database["public"]["Enums"]["journal_type"]
           mood?: Database["public"]["Enums"]["mood_type"] | null
           title?: string | null
@@ -261,6 +293,67 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      post_comments: {
+        Row: {
+          comment_text: string
+          created_at: string
+          id: string
+          journal_id: string
+          user_id: string
+        }
+        Insert: {
+          comment_text: string
+          created_at?: string
+          id?: string
+          journal_id: string
+          user_id: string
+        }
+        Update: {
+          comment_text?: string
+          created_at?: string
+          id?: string
+          journal_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "journals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          journal_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          journal_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          journal_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "journals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
