@@ -137,115 +137,6 @@ export const JournalAttachments: React.FC<JournalAttachmentsProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const renderAttachmentPreview = (attachment: Attachment, index: number) => {
-    const isImage = attachment.file_type.startsWith('image/');
-    const isVideo = attachment.file_type.startsWith('video/');
-    const [imageError, setImageError] = useState(false);
-    const [imageLoading, setImageLoading] = useState(true);
-
-    // Generate the correct URL for the attachment
-    const getAttachmentUrl = (attachment: Attachment): string => {
-      // If it's a new file (has File object), use blob URL
-      if (attachment.file && attachment.url?.startsWith('blob:')) {
-        return attachment.url;
-      }
-      
-      // If it already has a signed URL, use it
-      if (attachment.url && !attachment.url.startsWith('blob:')) {
-        return attachment.url;
-      }
-      
-      // Generate public URL for stored files
-      if (attachment.file_path) {
-        const { data } = supabase.storage
-          .from('journal-media')
-          .getPublicUrl(attachment.file_path);
-        return data.publicUrl;
-      }
-      
-      return '';
-    };
-
-    const handleImageLoad = () => {
-      setImageLoading(false);
-      setImageError(false);
-    };
-
-    const handleImageError = () => {
-      setImageLoading(false);
-      setImageError(true);
-      console.error('Failed to load image:', attachment.file_name, attachment.url);
-    };
-
-    return (
-      <Card key={index} className="relative group">
-        <div className="p-4">
-          {isEditing && (
-            <Button
-              variant="destructive"
-              size="sm"
-              className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => removeAttachment(index)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-
-          {isImage && (
-            <div className="space-y-2">
-              <div className="relative w-full h-32 rounded-md bg-muted overflow-hidden">
-                {imageLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                  </div>
-                )}
-                {imageError ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
-                    <Image className="h-8 w-8 mb-2" />
-                    <span className="text-xs">Failed to load</span>
-                  </div>
-                ) : (
-                  <img
-                    src={getAttachmentUrl(attachment)}
-                    alt={attachment.file_name}
-                    className="w-full h-full object-cover"
-                    onLoad={handleImageLoad}
-                    onError={handleImageError}
-                    style={{ display: imageLoading ? 'none' : 'block' }}
-                  />
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                {getFileIcon(attachment.file_type)}
-                <span className="truncate">{attachment.file_name}</span>
-                <span className="text-xs">({formatFileSize(attachment.file_size)})</span>
-              </div>
-            </div>
-          )}
-
-          {isVideo && (
-            <div className="space-y-2">
-              <div className="relative w-full h-32 rounded-md bg-muted overflow-hidden">
-                <video
-                  src={getAttachmentUrl(attachment)}
-                  controls
-                  className="w-full h-full object-cover"
-                  preload="metadata"
-                  onError={() => console.error('Failed to load video:', attachment.file_name)}
-                />
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                {getFileIcon(attachment.file_type)}
-                <span className="truncate">{attachment.file_name}</span>
-                <span className="text-xs">({formatFileSize(attachment.file_size)})</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </Card>
-    );
-  };
-
   return (
     <div className="space-y-4">
       {isEditing && (
@@ -283,10 +174,129 @@ export const JournalAttachments: React.FC<JournalAttachmentsProps> = ({
             {isEditing ? 'Selected Files' : 'Attachments'}
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {attachments.map((attachment, index) => renderAttachmentPreview(attachment, index))}
+            {attachments.map((attachment, index) => (
+              <AttachmentPreview
+                key={index}
+                attachment={attachment}
+                index={index}
+                isEditing={isEditing}
+                onRemove={removeAttachment}
+              />
+            ))}
           </div>
         </div>
       )}
     </div>
+  );
+};
+
+// Separate component to properly use hooks
+const AttachmentPreview: React.FC<{
+  attachment: Attachment;
+  index: number;
+  isEditing: boolean;
+  onRemove: (index: number) => void;
+}> = ({ attachment, index, isEditing, onRemove }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
+  const isImage = attachment.file_type.startsWith('image/');
+  const isVideo = attachment.file_type.startsWith('video/');
+
+  const getAttachmentUrl = (): string => {
+    if (attachment.file && attachment.url?.startsWith('blob:')) {
+      return attachment.url;
+    }
+    if (attachment.url && !attachment.url.startsWith('blob:')) {
+      return attachment.url;
+    }
+    if (attachment.file_path) {
+      const { data } = supabase.storage
+        .from('journal-media')
+        .getPublicUrl(attachment.file_path);
+      return data.publicUrl;
+    }
+    return '';
+  };
+
+  const getFileIcon = (fileType: string) => {
+    if (fileType.startsWith('image/')) return <Image className="h-4 w-4" />;
+    if (fileType.startsWith('video/')) return <Video className="h-4 w-4" />;
+    return <FileText className="h-4 w-4" />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  return (
+    <Card className="relative group">
+      <div className="p-4">
+        {isEditing && (
+          <Button
+            variant="destructive"
+            size="sm"
+            className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => onRemove(index)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+
+        {isImage && (
+          <div className="space-y-2">
+            <div className="relative w-full h-32 rounded-md bg-muted overflow-hidden">
+              {imageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                </div>
+              )}
+              {imageError ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
+                  <Image className="h-8 w-8 mb-2" />
+                  <span className="text-xs">Failed to load</span>
+                </div>
+              ) : (
+                <img
+                  src={getAttachmentUrl()}
+                  alt={attachment.file_name}
+                  className="w-full h-full object-cover"
+                  onLoad={() => { setImageLoading(false); setImageError(false); }}
+                  onError={() => { setImageLoading(false); setImageError(true); }}
+                  style={{ display: imageLoading ? 'none' : 'block' }}
+                />
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {getFileIcon(attachment.file_type)}
+              <span className="truncate">{attachment.file_name}</span>
+              <span className="text-xs">({formatFileSize(attachment.file_size)})</span>
+            </div>
+          </div>
+        )}
+
+        {isVideo && (
+          <div className="space-y-2">
+            <div className="relative w-full h-32 rounded-md bg-muted overflow-hidden">
+              <video
+                src={getAttachmentUrl()}
+                controls
+                className="w-full h-full object-cover"
+                preload="metadata"
+              />
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {getFileIcon(attachment.file_type)}
+              <span className="truncate">{attachment.file_name}</span>
+              <span className="text-xs">({formatFileSize(attachment.file_size)})</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </Card>
   );
 };
