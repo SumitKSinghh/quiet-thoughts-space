@@ -256,12 +256,12 @@ const CommunityPostCard = ({ post, onUpdate }: CommunityPostCardProps) => {
   };
 
   return (
-    <Card className="w-full group hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 border-border/50 bg-card/80 backdrop-blur-sm">
+    <Card className="w-full group hover:shadow-xl hover:shadow-violet-500/10 hover:-translate-y-1 transition-all duration-300 border-border/40 bg-white/80 dark:bg-card/80 backdrop-blur-sm rounded-2xl overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
-          <Avatar className="ring-2 ring-primary/10 transition-all duration-300 group-hover:ring-primary/20">
+          <Avatar className="ring-2 ring-violet-200 dark:ring-violet-800 transition-all duration-300 group-hover:ring-violet-400 dark:group-hover:ring-violet-600">
             <AvatarImage src={post.author_avatar || undefined} />
-            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-semibold">
+            <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white font-semibold">
               {post.author_name?.[0] || "U"}
             </AvatarFallback>
           </Avatar>
@@ -283,29 +283,29 @@ const CommunityPostCard = ({ post, onUpdate }: CommunityPostCardProps) => {
       <CardContent className="space-y-3">
         {post.title && <h3 className="text-xl font-semibold text-foreground">{post.title}</h3>}
         {post.mood && (
-          <div className="inline-block px-3 py-1 bg-gradient-to-r from-primary/15 to-primary/5 text-primary rounded-full text-sm font-medium border border-primary/10">
-            {post.mood}
+          <div className="inline-block px-3 py-1.5 bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-900/50 dark:to-blue-900/50 text-violet-700 dark:text-violet-300 rounded-full text-sm font-medium">
+            ✨ {post.mood}
           </div>
         )}
         <p className="text-foreground/90 whitespace-pre-wrap leading-relaxed">{post.content}</p>
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-4 pt-3 border-t border-border/30">
-        <div className="flex items-center gap-4 w-full">
+      <CardFooter className="flex flex-col gap-4 pt-3 border-t border-violet-100 dark:border-violet-900/30">
+        <div className="flex items-center gap-2 w-full">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLike}
-            className={`transition-all duration-200 ${liked ? "text-red-500 hover:text-red-600 hover:bg-red-500/10" : "hover:text-red-500 hover:bg-red-500/10"}`}
+            className={`rounded-xl transition-all duration-200 ${liked ? "text-rose-500 bg-rose-50 dark:bg-rose-500/10" : "hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10"}`}
           >
-            <Heart className={`h-5 w-5 mr-2 transition-transform duration-200 ${liked ? "fill-current scale-110" : "group-hover:scale-105"}`} />
+            <Heart className={`h-5 w-5 mr-2 transition-transform duration-200 ${liked ? "fill-current scale-110" : ""}`} />
             {likesCount}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowComments(!showComments)}
-            className="hover:text-primary hover:bg-primary/10 transition-all duration-200"
+            className="rounded-xl hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-all duration-200"
           >
             <MessageCircle className="h-5 w-5 mr-2" />
             {comments.length}
@@ -315,7 +315,7 @@ const CommunityPostCard = ({ post, onUpdate }: CommunityPostCardProps) => {
               variant="ghost" 
               size="sm" 
               onClick={handleShare}
-              className="hover:text-primary hover:bg-primary/10 transition-all duration-200"
+              className="rounded-xl hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all duration-200"
             >
               <Share2 className="h-5 w-5 mr-2" />
               Share
