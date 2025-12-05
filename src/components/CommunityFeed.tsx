@@ -159,8 +159,11 @@ const CommunityFeed = () => {
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">
+      <div className="text-center py-16 px-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-4">
+          <Loader2 className="h-8 w-8 text-primary/50" />
+        </div>
+        <p className="text-muted-foreground text-lg">
           No posts yet. Share your first journal to the community!
         </p>
       </div>
@@ -169,8 +172,14 @@ const CommunityFeed = () => {
 
   return (
     <div className="space-y-6">
-      {posts.map((post) => (
-        <CommunityPostCard key={`${post.id}-${post.is_repost ? "repost" : "original"}`} post={post} onUpdate={fetchCommunityPosts} />
+      {posts.map((post, index) => (
+        <div 
+          key={`${post.id}-${post.is_repost ? "repost" : "original"}`}
+          className="animate-fade-in"
+          style={{ animationDelay: `${index * 50}ms` }}
+        >
+          <CommunityPostCard post={post} onUpdate={fetchCommunityPosts} />
+        </div>
       ))}
     </div>
   );

@@ -256,12 +256,14 @@ const CommunityPostCard = ({ post, onUpdate }: CommunityPostCardProps) => {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
+    <Card className="w-full group hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 border-border/50 bg-card/80 backdrop-blur-sm">
+      <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
-          <Avatar>
+          <Avatar className="ring-2 ring-primary/10 transition-all duration-300 group-hover:ring-primary/20">
             <AvatarImage src={post.author_avatar || undefined} />
-            <AvatarFallback>{post.author_name?.[0] || "U"}</AvatarFallback>
+            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-semibold">
+              {post.author_name?.[0] || "U"}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <div className="font-semibold text-foreground">{post.author_name || "Anonymous"}</div>
@@ -269,8 +271,8 @@ const CommunityPostCard = ({ post, onUpdate }: CommunityPostCardProps) => {
               {format(new Date(post.created_at), "MMM d, yyyy 'at' h:mm a")}
             </div>
             {post.is_repost && (
-              <div className="text-xs text-muted-foreground mt-1">
-                <Share2 className="h-3 w-3 inline mr-1" />
+              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Share2 className="h-3 w-3" />
                 Shared by {post.reposted_by_name} · Original by {post.original_author_name}
               </div>
             )}
@@ -278,37 +280,43 @@ const CommunityPostCard = ({ post, onUpdate }: CommunityPostCardProps) => {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {post.title && <h3 className="text-xl font-semibold text-foreground">{post.title}</h3>}
         {post.mood && (
-          <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+          <div className="inline-block px-3 py-1 bg-gradient-to-r from-primary/15 to-primary/5 text-primary rounded-full text-sm font-medium border border-primary/10">
             {post.mood}
           </div>
         )}
-        <p className="text-foreground whitespace-pre-wrap">{post.content}</p>
+        <p className="text-foreground/90 whitespace-pre-wrap leading-relaxed">{post.content}</p>
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-4">
-        <div className="flex items-center gap-6 w-full">
+      <CardFooter className="flex flex-col gap-4 pt-3 border-t border-border/30">
+        <div className="flex items-center gap-4 w-full">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLike}
-            className={liked ? "text-red-500" : ""}
+            className={`transition-all duration-200 ${liked ? "text-red-500 hover:text-red-600 hover:bg-red-500/10" : "hover:text-red-500 hover:bg-red-500/10"}`}
           >
-            <Heart className={`h-5 w-5 mr-2 ${liked ? "fill-current" : ""}`} />
+            <Heart className={`h-5 w-5 mr-2 transition-transform duration-200 ${liked ? "fill-current scale-110" : "group-hover:scale-105"}`} />
             {likesCount}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowComments(!showComments)}
+            className="hover:text-primary hover:bg-primary/10 transition-all duration-200"
           >
             <MessageCircle className="h-5 w-5 mr-2" />
             {comments.length}
           </Button>
           {currentUserId !== post.user_id && (
-            <Button variant="ghost" size="sm" onClick={handleShare}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleShare}
+              className="hover:text-primary hover:bg-primary/10 transition-all duration-200"
+            >
               <Share2 className="h-5 w-5 mr-2" />
               Share
             </Button>
