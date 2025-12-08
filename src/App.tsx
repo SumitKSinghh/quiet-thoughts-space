@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
+import FrequencySidebar from "./components/FrequencySidebar";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <FrequencySidebar />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
