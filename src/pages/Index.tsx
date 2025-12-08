@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, Calendar, CheckSquare, Shield, Sparkles, Heart, Star, Zap } from 'lucide-react';
+import { Calendar, CheckSquare, Shield, Sparkles, Heart, Star, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import logo from '@/assets/logo.png';
 
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -111,13 +112,14 @@ const Index = () => {
           <div className="space-y-8 animate-fade-in">
             <div className="text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start mb-6">
-                <div className="relative">
-                  <BookOpen className="h-20 w-20 text-white drop-shadow-lg hover:scale-110 transition-transform duration-300" />
-                  <Sparkles className="h-8 w-8 text-yellow-300 absolute -top-2 -right-2 animate-pulse" />
-                </div>
+                <img 
+                  src={logo} 
+                  alt="Daily Voice Journal" 
+                  className="h-32 w-32 object-contain drop-shadow-lg hover:scale-110 transition-transform duration-300 rounded-full bg-white/20 backdrop-blur-sm p-2"
+                />
               </div>
-              <h1 className="text-6xl font-bold bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent mb-6 drop-shadow-lg">
-                Daily Journal
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent mb-6 drop-shadow-lg">
+                Daily Voice Journal
               </h1>
               <p className="text-xl text-white/90 mb-8 leading-relaxed drop-shadow backdrop-blur-sm">
                 ✨ Your personal space for reflection, growth, and organization. 
