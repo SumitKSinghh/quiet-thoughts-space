@@ -56,10 +56,7 @@ const Dashboard = () => {
         // Load journals data
         const { data: journals, error: journalsError } = await supabase
           .from('journals')
-          .select(`
-            id, title, content, entry_date, mood, created_at,
-            journal_smart_tags (tag_type, tag_value, confidence_score)
-          `)
+          .select('id, title, content, entry_date, mood, created_at')
           .eq('user_id', session.user.id)
           .order('entry_date', { ascending: false });
 
@@ -68,10 +65,21 @@ const Dashboard = () => {
           // Don't fail the entire dashboard for journal loading errors
         }
 
+        // Load smart tags separately
+        let smartTags: any[] = [];
+        if (journals && journals.length > 0) {
+          const { data: tagsData } = await supabase
+            .from('journal_smart_tags')
+            .select('journal_id, tag_type, tag_value, confidence_score')
+            .eq('user_id', session.user.id);
+          
+          smartTags = tagsData || [];
+        }
+
         if (isMounted) {
           const journalsWithTags = journals?.map(journal => ({
             ...journal,
-            smart_tags: journal.journal_smart_tags || []
+            smart_tags: smartTags.filter(tag => tag.journal_id === journal.id)
           })) || [];
 
           setAllJournals(journalsWithTags);
