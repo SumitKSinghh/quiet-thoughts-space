@@ -206,12 +206,22 @@ const FrequencySidebar = () => {
 
         {/* Mini Player Controls */}
         <div className="absolute bottom-0 left-0 right-0 p-5 bg-slate-900 border-t border-slate-800">
+           {/* Stop Button */}
+           {isPlaying && (
+             <button 
+               onClick={stopAudio}
+               className="w-full mb-3 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
+             >
+               <X size={16} /> Stop Playback
+             </button>
+           )}
+           
            <div className="flex items-center justify-between mb-2">
              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Master Volume</span>
              <span className="text-xs text-indigo-400">{Math.round(volume * 100)}%</span>
            </div>
            <input 
-             type="range" 
+             type="range"
              min="0" 
              max="1" 
              step="0.01" 
