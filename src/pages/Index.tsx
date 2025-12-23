@@ -42,6 +42,19 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Load ElevenLabs ConvAI widget script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+    script.async = true;
+    script.type = 'text/javascript';
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -290,6 +303,10 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* ElevenLabs ConvAI Widget */}
+      {/* @ts-ignore */}
+      <elevenlabs-convai agent-id="agent_9901ka0em19jerm9qr2t8aj0w1vr"></elevenlabs-convai>
     </div>
   );
 };
