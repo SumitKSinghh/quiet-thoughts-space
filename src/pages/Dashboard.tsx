@@ -14,6 +14,7 @@ import UnfinishedTasks from '@/components/UnfinishedTasks';
 import VoiceJournal from '@/components/VoiceJournal';
 import GoalTracker from '@/components/GoalTracker';
 import MoodInsights from '@/components/MoodInsights';
+import FrequencySidebar from '@/components/FrequencySidebar';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -386,6 +387,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <FrequencySidebar />
     </div>
   );
 };
