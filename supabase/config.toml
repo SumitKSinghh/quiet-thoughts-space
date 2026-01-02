@@ -39,5 +39,8 @@ verify_jwt = true
 [functions.generate-user-insights]
 verify_jwt = true
 
+[functions.chat-with-ai]
+verify_jwt = true
+
 [db]
 port = 54322
