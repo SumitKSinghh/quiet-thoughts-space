@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar, BookOpen, LogOut, User, Mic, Target, BarChart3, Search, Users } from 'lucide-react';
+import { Plus, Calendar, BookOpen, LogOut, User, Mic, Target, BarChart3, Search, Users, Brain } from 'lucide-react';
 import JournalEditorSimple from '@/components/JournalEditorSimple';
 import JournalList from '@/components/JournalList';
 import { JournalSearch } from '@/components/JournalSearch';
@@ -15,12 +15,13 @@ import VoiceJournal from '@/components/VoiceJournal';
 import GoalTracker from '@/components/GoalTracker';
 import MoodInsights from '@/components/MoodInsights';
 import FrequencySidebar from '@/components/FrequencySidebar';
+import AIInsightsPanel from '@/components/AIInsightsPanel';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
-  const [activeView, setActiveView] = useState<'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search'>('list');
+  const [activeView, setActiveView] = useState<'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search' | 'ai-insights'>('list');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -272,7 +273,17 @@ const Dashboard = () => {
                 size="sm"
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
-                Insights
+                Mood
+              </Button>
+              
+              <Button
+                onClick={() => setActiveView('ai-insights')}
+                variant={activeView === 'ai-insights' ? 'secondary' : 'outline'}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                size="sm"
+              >
+                <Brain className="h-4 w-4 mr-2" />
+                AI Insights
               </Button>
               
               <Button
@@ -383,6 +394,10 @@ const Dashboard = () => {
             
             {activeView === 'insights' && (
               <MoodInsights />
+            )}
+            
+            {activeView === 'ai-insights' && (
+              <AIInsightsPanel />
             )}
           </div>
         </div>

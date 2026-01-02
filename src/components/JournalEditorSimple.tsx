@@ -151,6 +151,19 @@ const JournalEditorSimple = ({ journal, selectedDate, onBack, onSave }: JournalE
         // Don't fail the save operation if tag generation fails
       }
 
+      // Generate AI insights based on all journal entries
+      try {
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          await supabase.functions.invoke('generate-user-insights', {
+            body: { userId: currentUser.id }
+          });
+        }
+      } catch (insightsError) {
+        console.error('Failed to generate AI insights:', insightsError);
+        // Don't fail the save operation if insights generation fails
+      }
+
       toast({
         title: "Journal saved",
         description: "Your entry has been saved successfully.",
