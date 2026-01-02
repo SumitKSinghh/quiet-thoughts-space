@@ -441,6 +441,42 @@ export type Database = {
           },
         ]
       }
+      user_insights: {
+        Row: {
+          analyzed_entries_count: number | null
+          content: string
+          created_at: string
+          id: string
+          insight_type: string
+          metadata: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analyzed_entries_count?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          insight_type: string
+          metadata?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analyzed_entries_count?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          insight_type?: string
+          metadata?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

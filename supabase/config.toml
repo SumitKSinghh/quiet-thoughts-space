@@ -36,5 +36,8 @@ verify_jwt = true
 [functions.analyze-dream]
 verify_jwt = true
 
+[functions.generate-user-insights]
+verify_jwt = true
+
 [db]
 port = 54322
