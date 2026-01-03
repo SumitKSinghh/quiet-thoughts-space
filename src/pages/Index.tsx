@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, CheckSquare, Shield, Sparkles, Heart, Star, Zap } from 'lucide-react';
+import { Calendar, CheckSquare, Shield, Sparkles, Heart, Star, Zap, Mail, Phone } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import logo from '@/assets/logo.png';
@@ -300,6 +300,26 @@ const Index = () => {
             <p className="text-white/70 text-sm">
               Join thousands of users on their journey to self-discovery ✨
             </p>
+            
+            {/* Contact Details */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 pt-4 mt-4 border-t border-white/20">
+              <a 
+                href="mailto:info@budfi.in" 
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300"
+              >
+                <Mail className="h-5 w-5" />
+                <span>info@budfi.in</span>
+              </a>
+              <a 
+                href="https://wa.me/919439044619" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300"
+              >
+                <Phone className="h-5 w-5" />
+                <span>+91-9439044619</span>
+              </a>
+            </div>
           </div>
         </div>
       </footer>
