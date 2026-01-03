@@ -229,114 +229,147 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-slate-600 via-gray-600 to-stone-600 shadow-lg border-b border-slate-200">
+      <header className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 shadow-xl border-b border-slate-600/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <BookOpen className="h-8 w-8 text-white drop-shadow-md" />
-              <h1 className="text-2xl font-bold text-white drop-shadow-md">Daily Journal</h1>
+          <div className="flex items-center justify-between h-14">
+            {/* Logo */}
+            <div className="flex items-center space-x-2 flex-shrink-0">
+              <div className="p-1.5 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg shadow-md">
+                <BookOpen className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-semibold text-white tracking-tight">Daily Journal</span>
             </div>
             
-            <div className="flex items-center space-x-2">
+            {/* Navigation */}
+            <nav className="flex items-center gap-1">
+              {/* Primary Action */}
               <Button
                 onClick={handleCreateNew}
-                className="bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg transform hover:scale-105 transition-all duration-200"
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
                 size="sm"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-1.5" />
                 New Entry
               </Button>
               
-              <Button
-                onClick={() => setActiveView('voice')}
-                variant={activeView === 'voice' ? 'secondary' : 'outline'}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
-                size="sm"
-              >
-                <Mic className="h-4 w-4 mr-2" />
-                Voice
-              </Button>
+              {/* Separator */}
+              <div className="w-px h-6 bg-slate-600 mx-2" />
               
-              <Button
-                onClick={() => setActiveView('goals')}
-                variant={activeView === 'goals' ? 'secondary' : 'outline'}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
-                size="sm"
-              >
-                <Target className="h-4 w-4 mr-2" />
-                Goals
-              </Button>
+              {/* Journal Tools */}
+              <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg p-0.5">
+                <Button
+                  onClick={() => setActiveView('voice')}
+                  variant="ghost"
+                  size="sm"
+                  className={`text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors ${
+                    activeView === 'voice' ? 'bg-slate-600 text-white' : ''
+                  }`}
+                >
+                  <Mic className="h-4 w-4 mr-1.5" />
+                  Voice
+                </Button>
+                
+                <Button
+                  onClick={() => setActiveView('goals')}
+                  variant="ghost"
+                  size="sm"
+                  className={`text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors ${
+                    activeView === 'goals' ? 'bg-slate-600 text-white' : ''
+                  }`}
+                >
+                  <Target className="h-4 w-4 mr-1.5" />
+                  Goals
+                </Button>
+                
+                <Button
+                  onClick={() => setActiveView('insights')}
+                  variant="ghost"
+                  size="sm"
+                  className={`text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors ${
+                    activeView === 'insights' ? 'bg-slate-600 text-white' : ''
+                  }`}
+                >
+                  <BarChart3 className="h-4 w-4 mr-1.5" />
+                  Mood
+                </Button>
+              </div>
               
-              <Button
-                onClick={() => setActiveView('insights')}
-                variant={activeView === 'insights' ? 'secondary' : 'outline'}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
-                size="sm"
-              >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Mood
-              </Button>
+              {/* Separator */}
+              <div className="w-px h-6 bg-slate-600 mx-2" />
               
-              <Button
-                onClick={() => setActiveView('ai-insights')}
-                variant={activeView === 'ai-insights' ? 'secondary' : 'outline'}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
-                size="sm"
-              >
-                <Brain className="h-4 w-4 mr-2" />
-                AI Insights
-              </Button>
+              {/* AI Features */}
+              <div className="flex items-center gap-1 bg-gradient-to-r from-violet-600/20 to-purple-600/20 rounded-lg p-0.5 border border-violet-500/30">
+                <Button
+                  onClick={() => setActiveView('ai-insights')}
+                  variant="ghost"
+                  size="sm"
+                  className={`text-violet-300 hover:text-white hover:bg-violet-600/50 transition-colors ${
+                    activeView === 'ai-insights' ? 'bg-violet-600/70 text-white' : ''
+                  }`}
+                >
+                  <Brain className="h-4 w-4 mr-1.5" />
+                  Insights
+                </Button>
+                
+                <Button
+                  onClick={() => setActiveView('ai-chat')}
+                  variant="ghost"
+                  size="sm"
+                  className={`text-violet-300 hover:text-white hover:bg-violet-600/50 transition-colors ${
+                    activeView === 'ai-chat' ? 'bg-violet-600/70 text-white' : ''
+                  }`}
+                >
+                  <MessageCircle className="h-4 w-4 mr-1.5" />
+                  Chat
+                </Button>
+              </div>
               
-              <Button
-                onClick={() => setActiveView('ai-chat')}
-                variant={activeView === 'ai-chat' ? 'secondary' : 'outline'}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
-                size="sm"
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                AI Chat
-              </Button>
+              {/* Separator */}
+              <div className="w-px h-6 bg-slate-600 mx-2" />
               
+              {/* Utilities */}
               <Button
                 onClick={() => setActiveView('search')}
-                variant={activeView === 'search' ? 'secondary' : 'outline'}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                variant="ghost"
                 size="sm"
+                className={`text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors ${
+                  activeView === 'search' ? 'bg-slate-600 text-white' : ''
+                }`}
               >
-                <Search className="h-4 w-4 mr-2" />
-                Search
+                <Search className="h-4 w-4" />
               </Button>
               
               <Button
                 onClick={() => navigate('/community')}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                variant="ghost"
                 size="sm"
+                className="text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors"
               >
-                <Users className="h-4 w-4 mr-2" />
-                Community
+                <Users className="h-4 w-4" />
               </Button>
               
+              {/* Separator */}
+              <div className="w-px h-6 bg-slate-600 mx-2" />
+              
+              {/* User Actions */}
               <Button
                 onClick={() => navigate('/profile')}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                variant="ghost"
                 size="sm"
+                className="text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors"
               >
-                <User className="h-4 w-4 mr-2" />
-                Profile
+                <User className="h-4 w-4" />
               </Button>
               
               <Button
                 onClick={handleLogout}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                variant="ghost"
                 size="sm"
+                className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <LogOut className="h-4 w-4" />
               </Button>
-            </div>
+            </nav>
           </div>
         </div>
       </header>
