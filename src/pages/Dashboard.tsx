@@ -1,28 +1,34 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar, BookOpen, LogOut, User, Mic, Target, BarChart3, Search, Users, Brain, MessageCircle } from 'lucide-react';
+
+// Dashboard Components
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import QuickStatsGrid from '@/components/dashboard/QuickStatsGrid';
+import GamifiedGoalsCalendar from '@/components/dashboard/GamifiedGoalsCalendar';
+import CompactCalendar from '@/components/dashboard/CompactCalendar';
+import CompactTodoList from '@/components/dashboard/CompactTodoList';
+
+// Feature Components
 import JournalEditorSimple from '@/components/JournalEditorSimple';
 import JournalList from '@/components/JournalList';
 import { JournalSearch } from '@/components/JournalSearch';
 import { JournalSearchResults } from '@/components/JournalSearchResults';
-import CalendarSidebar from '@/components/CalendarSidebar';
-import TodoSidebar from '@/components/TodoSidebar';
-import UnfinishedTasks from '@/components/UnfinishedTasks';
 import VoiceJournal from '@/components/VoiceJournal';
 import GoalTracker from '@/components/GoalTracker';
 import MoodInsights from '@/components/MoodInsights';
-import FrequencySidebar from '@/components/FrequencySidebar';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import AIChatPanel from '@/components/AIChatPanel';
+import FrequencySidebar from '@/components/FrequencySidebar';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+type ViewType = 'home' | 'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search' | 'ai-insights' | 'ai-chat';
+
 const Dashboard = () => {
-  const [activeView, setActiveView] = useState<'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search' | 'ai-insights' | 'ai-chat'>('list');
+  const [activeView, setActiveView] = useState<ViewType>('home');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +48,6 @@ const Dashboard = () => {
         setIsLoading(true);
         setAuthError(null);
         
-        // Check authentication
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -56,7 +61,6 @@ const Dashboard = () => {
           return;
         }
         
-        // Load journals data
         const { data: journals, error: journalsError } = await supabase
           .from('journals')
           .select('id, title, content, entry_date, mood, created_at')
@@ -65,10 +69,8 @@ const Dashboard = () => {
 
         if (journalsError) {
           console.error('Error loading journals:', journalsError);
-          // Don't fail the entire dashboard for journal loading errors
         }
 
-        // Load smart tags separately
         let smartTags: any[] = [];
         if (journals && journals.length > 0) {
           const { data: tagsData } = await supabase
@@ -96,7 +98,6 @@ const Dashboard = () => {
         if (isMounted) {
           setAuthError(error.message || 'Failed to load dashboard');
           
-          // If it's an auth error, redirect to login
           if (error.message?.includes('authentication') || error.message?.includes('session')) {
             toast({
               title: "Session expired",
@@ -115,14 +116,12 @@ const Dashboard = () => {
 
     initializeDashboard();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         if (isMounted) {
           navigate('/login', { replace: true });
         }
       } else if (event === 'SIGNED_IN' && !isInitialized) {
-        // Reload dashboard if user signs in and dashboard isn't initialized
         initializeDashboard();
       }
     });
@@ -155,57 +154,43 @@ const Dashboard = () => {
     setActiveView('edit');
   };
 
-  const handleBackToList = () => {
-    setActiveView('list');
+  const handleBackToHome = () => {
+    setActiveView('home');
     setSelectedJournal(null);
   };
 
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Logged out",
-        description: "You've been successfully logged out.",
-      });
-      
-      navigate('/');
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Something went wrong while logging out.",
-        variant: "destructive",
-      });
-    }
+  const handleViewChange = (view: string) => {
+    setActiveView(view as ViewType);
   };
 
-  // Show loading screen while checking authentication and loading data
+  // Loading Screen
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <BookOpen className="h-12 w-12 text-slate-600 mx-auto mb-4 animate-pulse" />
-          <p className="text-slate-600">Loading your dashboard...</p>
+          <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-xl shadow-emerald-500/20 mx-auto mb-6 w-fit">
+            <BookOpen className="h-8 w-8 text-white animate-pulse" />
+          </div>
+          <p className="text-slate-500 font-medium">Loading your dashboard...</p>
         </div>
       </div>
     );
   }
 
-  // Show error screen if there's an authentication or loading error
+  // Error Screen
   if (authError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8 bg-white rounded-2xl shadow-xl">
           <BookOpen className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Error</h2>
-          <p className="text-gray-600 mb-4">{authError}</p>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Dashboard Error</h2>
+          <p className="text-slate-500 mb-6">{authError}</p>
           <Button 
             onClick={() => {
               setAuthError(null);
               navigate('/login', { replace: true });
             }}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-gradient-to-r from-emerald-500 to-teal-600"
           >
             Go to Login
           </Button>
@@ -214,242 +199,166 @@ const Dashboard = () => {
     );
   }
 
-  // Only render dashboard if we're initialized and authenticated
   if (!isInitialized) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <BookOpen className="h-12 w-12 text-slate-600 mx-auto mb-4 animate-pulse" />
-          <p className="text-slate-600">Initializing dashboard...</p>
+          <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-xl shadow-emerald-500/20 mx-auto mb-6 w-fit">
+            <BookOpen className="h-8 w-8 text-white animate-pulse" />
+          </div>
+          <p className="text-slate-500 font-medium">Initializing...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 shadow-xl border-b border-slate-600/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
-            {/* Logo */}
-            <div className="flex items-center space-x-2 flex-shrink-0">
-              <div className="p-1.5 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg shadow-md">
-                <BookOpen className="h-5 w-5 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+      <DashboardHeader 
+        activeView={activeView}
+        onViewChange={handleViewChange}
+        onCreateNew={handleCreateNew}
+      />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Home View - Modern Dashboard */}
+        {activeView === 'home' && (
+          <>
+            {/* Quick Stats */}
+            <QuickStatsGrid />
+
+            {/* Main Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Left Column - Calendar & Tasks */}
+              <div className="lg:col-span-1 space-y-6">
+                <CompactCalendar 
+                  selectedDate={selectedDate} 
+                  onDateSelect={setSelectedDate} 
+                />
+                <CompactTodoList />
               </div>
-              <span className="text-lg font-semibold text-white tracking-tight">Daily Journal</span>
+
+              {/* Right Column - Gamified Goals */}
+              <div className="lg:col-span-3">
+                <GamifiedGoalsCalendar />
+
+                {/* Recent Entries Preview */}
+                <div className="mt-6 bg-white rounded-2xl shadow-lg border border-slate-100 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-slate-800">Recent Entries</h3>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setActiveView('list')}
+                      className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                    >
+                      View All
+                    </Button>
+                  </div>
+                  
+                  {allJournals.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                      <p className="text-sm">No entries yet. Start your journaling journey!</p>
+                      <Button 
+                        onClick={handleCreateNew}
+                        className="mt-4 bg-gradient-to-r from-emerald-500 to-teal-600"
+                      >
+                        Create First Entry
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {allJournals.slice(0, 3).map((journal) => (
+                        <div
+                          key={journal.id}
+                          onClick={() => handleEditJournal(journal)}
+                          className="p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-white to-slate-50"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs text-slate-400">
+                              {new Date(journal.entry_date).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </span>
+                            {journal.mood && (
+                              <span className="text-lg">
+                                {journal.mood === 'excellent' && '😄'}
+                                {journal.mood === 'good' && '😊'}
+                                {journal.mood === 'neutral' && '😐'}
+                                {journal.mood === 'bad' && '😞'}
+                                {journal.mood === 'terrible' && '😢'}
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="font-medium text-slate-800 truncate">
+                            {journal.title || 'Untitled Entry'}
+                          </h4>
+                          <p className="text-sm text-slate-500 line-clamp-2 mt-1">
+                            {journal.content?.substring(0, 100) || 'No content...'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-            
-            {/* Navigation */}
-            <nav className="flex items-center gap-1">
-              {/* Primary Action */}
-              <Button
-                onClick={handleCreateNew}
-                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 mr-1.5" />
-                New Entry
-              </Button>
-              
-              {/* Separator */}
-              <div className="w-px h-6 bg-slate-600 mx-2" />
-              
-              {/* Journal Tools */}
-              <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg p-0.5">
-                <Button
-                  onClick={() => setActiveView('voice')}
-                  variant="ghost"
-                  size="sm"
-                  className={`text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors ${
-                    activeView === 'voice' ? 'bg-slate-600 text-white' : ''
-                  }`}
-                >
-                  <Mic className="h-4 w-4 mr-1.5" />
-                  Voice
-                </Button>
-                
-                <Button
-                  onClick={() => setActiveView('goals')}
-                  variant="ghost"
-                  size="sm"
-                  className={`text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors ${
-                    activeView === 'goals' ? 'bg-slate-600 text-white' : ''
-                  }`}
-                >
-                  <Target className="h-4 w-4 mr-1.5" />
-                  Goals
-                </Button>
-                
-                <Button
-                  onClick={() => setActiveView('insights')}
-                  variant="ghost"
-                  size="sm"
-                  className={`text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors ${
-                    activeView === 'insights' ? 'bg-slate-600 text-white' : ''
-                  }`}
-                >
-                  <BarChart3 className="h-4 w-4 mr-1.5" />
-                  Mood
-                </Button>
-              </div>
-              
-              {/* Separator */}
-              <div className="w-px h-6 bg-slate-600 mx-2" />
-              
-              {/* AI Features */}
-              <div className="flex items-center gap-1 bg-gradient-to-r from-violet-600/20 to-purple-600/20 rounded-lg p-0.5 border border-violet-500/30">
-                <Button
-                  onClick={() => setActiveView('ai-insights')}
-                  variant="ghost"
-                  size="sm"
-                  className={`text-violet-300 hover:text-white hover:bg-violet-600/50 transition-colors ${
-                    activeView === 'ai-insights' ? 'bg-violet-600/70 text-white' : ''
-                  }`}
-                >
-                  <Brain className="h-4 w-4 mr-1.5" />
-                  Insights
-                </Button>
-                
-                <Button
-                  onClick={() => setActiveView('ai-chat')}
-                  variant="ghost"
-                  size="sm"
-                  className={`text-violet-300 hover:text-white hover:bg-violet-600/50 transition-colors ${
-                    activeView === 'ai-chat' ? 'bg-violet-600/70 text-white' : ''
-                  }`}
-                >
-                  <MessageCircle className="h-4 w-4 mr-1.5" />
-                  Chat
-                </Button>
-              </div>
-              
-              {/* Separator */}
-              <div className="w-px h-6 bg-slate-600 mx-2" />
-              
-              {/* Utilities */}
-              <Button
-                onClick={() => setActiveView('search')}
-                variant="ghost"
-                size="sm"
-                className={`text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors ${
-                  activeView === 'search' ? 'bg-slate-600 text-white' : ''
-                }`}
-              >
-                <Search className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                onClick={() => navigate('/community')}
-                variant="ghost"
-                size="sm"
-                className="text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors"
-              >
-                <Users className="h-4 w-4" />
-              </Button>
-              
-              {/* Separator */}
-              <div className="w-px h-6 bg-slate-600 mx-2" />
-              
-              {/* User Actions */}
-              <Button
-                onClick={() => navigate('/profile')}
-                variant="ghost"
-                size="sm"
-                className="text-slate-300 hover:text-white hover:bg-slate-600/80 transition-colors"
-              >
-                <User className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                onClick={handleLogout}
-                variant="ghost"
-                size="sm"
-                className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+          </>
+        )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Unfinished Tasks Section */}
-        <div className="mb-6">
-          <UnfinishedTasks />
-        </div>
+        {/* Other Views */}
+        {activeView === 'list' && (
+          <JournalList
+            selectedDate={selectedDate}
+            onEditJournal={handleEditJournal}
+          />
+        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
-          {/* Left Sidebar - Calendar */}
-          <div className="lg:col-span-2">
-            <div className="space-y-6">
-              <CalendarSidebar 
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-              />
-              <TodoSidebar />
-            </div>
+        {activeView === 'search' && (
+          <div className="space-y-6">
+            <JournalSearch
+              onResults={handleSearchResults}
+              allEntries={allJournals}
+            />
+            <JournalSearchResults
+              results={searchResults}
+              onSelectJournal={handleSelectSearchResult}
+            />
           </div>
+        )}
+        
+        {(activeView === 'create' || activeView === 'edit') && (
+          <JournalEditorSimple
+            journal={selectedJournal}
+            selectedDate={selectedDate}
+            onBack={handleBackToHome}
+            onSave={handleBackToHome}
+          />
+        )}
+        
+        {activeView === 'voice' && (
+          <VoiceJournal onSave={handleBackToHome} />
+        )}
+        
+        {activeView === 'goals' && (
+          <GoalTracker />
+        )}
+        
+        {activeView === 'insights' && (
+          <MoodInsights />
+        )}
+        
+        {activeView === 'ai-insights' && (
+          <AIInsightsPanel />
+        )}
+        
+        {activeView === 'ai-chat' && (
+          <AIChatPanel />
+        )}
+      </main>
 
-          {/* Main Content */}
-          <div className="lg:col-span-4">
-            
-            {activeView === 'search' && (
-              <div className="space-y-6">
-                <JournalSearch
-                  onResults={handleSearchResults}
-                  allEntries={allJournals}
-                />
-                <JournalSearchResults
-                  results={searchResults}
-                  onSelectJournal={handleSelectSearchResult}
-                />
-              </div>
-            )}
-            
-            {activeView === 'list' && (
-              <>
-                <JournalList
-                  selectedDate={selectedDate}
-                  onEditJournal={handleEditJournal}
-                />
-              </>
-            )}
-            
-            {(activeView === 'create' || activeView === 'edit') && (
-              <>
-                <JournalEditorSimple
-                  journal={selectedJournal}
-                  selectedDate={selectedDate}
-                  onBack={handleBackToList}
-                  onSave={handleBackToList}
-                />
-              </>
-            )}
-            
-            {activeView === 'voice' && (
-              <VoiceJournal onSave={handleBackToList} />
-            )}
-            
-            {activeView === 'goals' && (
-              <GoalTracker />
-            )}
-            
-            {activeView === 'insights' && (
-              <MoodInsights />
-            )}
-            
-            {activeView === 'ai-insights' && (
-              <AIInsightsPanel />
-            )}
-            
-            {activeView === 'ai-chat' && (
-              <AIChatPanel />
-            )}
-          </div>
-        </div>
-      </div>
       <FrequencySidebar />
     </div>
   );
