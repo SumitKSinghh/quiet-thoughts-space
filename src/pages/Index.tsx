@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, CheckSquare, Shield, Sparkles, Heart, Star, Zap, Mail, Phone } from 'lucide-react';
+import { Calendar, CheckSquare, Shield, Sparkles, Heart, Star, Zap, Mail, Phone, BookOpen, Target, TrendingUp, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import logo from '@/assets/logo.png';
@@ -21,7 +21,6 @@ const Index = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
@@ -29,7 +28,6 @@ const Index = () => {
       }
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUser(session.user);
@@ -42,7 +40,6 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Load ElevenLabs ConvAI widget script
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
@@ -83,19 +80,17 @@ const Index = () => {
         
         if (error) throw error;
         
-        // Since email confirmation is disabled, the user should be logged in immediately
         if (data.user && data.session) {
           toast({
             title: "Account created!",
             description: "Welcome to Daily Journal! You're now logged in.",
           });
-          // Navigation will be handled by the auth state change listener
         } else {
           toast({
             title: "Account created!",
             description: "You can now sign in with your credentials.",
           });
-          setIsLogin(true); // Switch to login mode
+          setIsLogin(true);
         }
       }
     } catch (error: any) {
@@ -109,172 +104,197 @@ const Index = () => {
     }
   };
 
+  const features = [
+    {
+      icon: BookOpen,
+      title: "Daily Journaling",
+      description: "Capture your thoughts with our beautiful editor",
+      gradient: "from-teal-500 to-cyan-500"
+    },
+    {
+      icon: Target,
+      title: "Goal Tracking",
+      description: "Set and achieve your personal milestones",
+      gradient: "from-amber-500 to-orange-500"
+    },
+    {
+      icon: Calendar,
+      title: "Smart Calendar",
+      description: "Organize your life with intuitive planning",
+      gradient: "from-indigo-500 to-purple-500"
+    },
+    {
+      icon: TrendingUp,
+      title: "AI Insights",
+      description: "Get personalized growth recommendations",
+      gradient: "from-emerald-500 to-teal-500"
+    }
+  ];
+
+  const stats = [
+    { value: "10K+", label: "Active Users" },
+    { value: "50K+", label: "Journal Entries" },
+    { value: "99.9%", label: "Uptime" }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-300 to-blue-400 relative overflow-hidden">
-      {/* Animated background elements */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      {/* Ambient background effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-60 h-60 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl"></div>
       </div>
 
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 py-12 lg:py-20 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left side - App info */}
-          <div className="space-y-8 animate-fade-in">
-            <div className="text-center lg:text-left">
-              <div className="flex items-center justify-center lg:justify-start mb-6">
+          <div className="space-y-8">
+            {/* Logo and brand */}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-2xl blur-xl opacity-50"></div>
                 <img 
                   src={logo} 
                   alt="Daily Voice Journal" 
-                  className="h-32 w-32 object-contain drop-shadow-lg hover:scale-110 transition-transform duration-300 rounded-full bg-white/20 backdrop-blur-sm p-2"
+                  className="relative h-16 w-16 object-contain rounded-2xl bg-white/10 backdrop-blur-xl p-2 border border-white/10"
                 />
               </div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent mb-6 drop-shadow-lg">
-                Daily Voice Journal
+              <span className="text-xl font-semibold text-white/90">Daily Voice Journal</span>
+            </div>
+
+            {/* Main heading */}
+            <div className="space-y-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                <span className="text-white">Your Journey to</span>
+                <br />
+                <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">
+                  Self-Discovery
+                </span>
               </h1>
-              <p className="text-xl text-white/90 mb-8 leading-relaxed drop-shadow backdrop-blur-sm">
-                ✨ Your personal space for reflection, growth, and organization. 
-                Capture your thoughts, track your goals, and build better habits with style! 💫
+              <p className="text-lg text-slate-400 leading-relaxed max-w-lg">
+                Capture your thoughts, track your goals, and unlock powerful AI insights. 
+                Build lasting habits with our gamified journaling experience.
               </p>
             </div>
 
-            {/* Enhanced Features Grid */}
-            <div className="grid sm:grid-cols-2 gap-6">
-              <div className="flex items-start space-x-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-                <div className="p-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400">
-                  <Calendar className="h-6 w-6 text-white" />
+            {/* Features Grid */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              {features.map((feature, index) => (
+                <div 
+                  key={index}
+                  className="group p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-xl bg-gradient-to-br ${feature.gradient} shrink-0`}>
+                      <feature.icon className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white text-sm">{feature.title}</h3>
+                      <p className="text-slate-400 text-xs mt-1">{feature.description}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-white mb-1 text-lg">Daily Entries</h3>
-                  <p className="text-white/80 text-sm">Organize thoughts with our intuitive calendar view ✨</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-                <div className="p-2 rounded-full bg-gradient-to-r from-green-400 to-emerald-400">
-                  <CheckSquare className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white mb-1 text-lg">Smart To-Dos</h3>
-                  <p className="text-white/80 text-sm">Track tasks and goals with intelligent organization 🎯</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-                <div className="p-2 rounded-full bg-gradient-to-r from-purple-400 to-pink-400">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white mb-1 text-lg">Ultra Secure</h3>
-                  <p className="text-white/80 text-sm">Bank-level encryption keeps your thoughts safe 🔒</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-                <div className="p-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400">
-                  <Zap className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white mb-1 text-lg">Lightning Fast</h3>
-                  <p className="text-white/80 text-sm">Instant sync across all your devices ⚡</p>
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Stats section */}
-            <div className="flex justify-center lg:justify-start space-x-8 pt-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white">10K+</div>
-                <div className="text-white/80 text-sm">Happy Users</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white">50K+</div>
-                <div className="text-white/80 text-sm">Journal Entries</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white">99.9%</div>
-                <div className="text-white/80 text-sm">Uptime</div>
-              </div>
+            {/* Stats */}
+            <div className="flex items-center gap-8 pt-4">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                    {stat.value}
+                  </div>
+                  <div className="text-slate-500 text-sm">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Right side - Enhanced Auth form */}
-          <div className="flex justify-center lg:justify-end animate-scale-in">
+          {/* Right side - Auth form */}
+          <div className="flex justify-center lg:justify-end">
             <div className="w-full max-w-md">
-              <Card className="shadow-2xl border-0 bg-white/20 backdrop-blur-xl border border-white/30 hover:bg-white/25 transition-all duration-300">
-                <CardHeader className="space-y-1 text-center">
-                  <div className="flex justify-center mb-4">
-                    <Star className="h-8 w-8 text-yellow-300 animate-pulse" />
+              <Card className="border-0 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/20">
+                <CardHeader className="space-y-2 text-center pb-2">
+                  <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center mb-2">
+                    <Sparkles className="h-6 w-6 text-white" />
                   </div>
-                  <CardTitle className="text-3xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    {isLogin ? 'Welcome Back! 👋' : 'Join the Journey! 🚀'}
+                  <CardTitle className="text-2xl font-bold text-white">
+                    {isLogin ? 'Welcome Back' : 'Get Started'}
                   </CardTitle>
-                  {isLogin && (
-                    <div className="text-xl font-semibold text-purple-700 mt-2">
-                      Let's Plan
-                    </div>
-                  )}
-                  <CardDescription className="text-gray-700 font-medium">
+                  <CardDescription className="text-slate-400">
                     {isLogin 
-                      ? 'Ready to continue your growth story?' 
-                      : 'Start your amazing journaling adventure today!'
+                      ? 'Continue your journaling journey' 
+                      : 'Create your account and start today'
                     }
                   </CardDescription>
                 </CardHeader>
                 
                 <form onSubmit={handleSubmit}>
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-gray-700 font-semibold">Email ✉️</Label>
+                      <Label htmlFor="email" className="text-slate-300 text-sm font-medium">Email</Label>
                       <Input
                         id="email"
                         type="email"
-                        placeholder="your.email@example.com"
+                        placeholder="you@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="border-2 border-purple-200 focus:border-purple-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500 rounded-xl"
+                        className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-teal-500/50 focus:ring-teal-500/20 rounded-xl h-11"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="text-gray-700 font-semibold">Password 🔑</Label>
+                      <Label htmlFor="password" className="text-slate-300 text-sm font-medium">Password</Label>
                       <Input
                         id="password"
                         type="password"
-                        placeholder="Your secure password"
+                        placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="border-2 border-purple-200 focus:border-purple-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500 rounded-xl"
+                        className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-teal-500/50 focus:ring-teal-500/20 rounded-xl h-11"
                       />
                     </div>
 
                     <Button 
                       type="submit" 
-                      className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white font-bold py-3 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg"
+                      className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold h-11 rounded-xl transition-all duration-300 shadow-lg shadow-teal-500/25"
                       disabled={loading}
                     >
-                      {loading ? 'Magic happening... ✨' : (isLogin ? 'Sign In 🎉' : 'Create Account 🌟')}
+                      {loading ? (
+                        <span className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          Processing...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          {isLogin ? 'Sign In' : 'Create Account'}
+                          <ArrowRight className="h-4 w-4" />
+                        </span>
+                      )}
                     </Button>
                     
-                    <div className="flex items-center space-x-4">
-                      <Separator className="flex-1 bg-purple-300" />
-                      <span className="text-sm text-gray-600 font-medium">or</span>
-                      <Separator className="flex-1 bg-purple-300" />
+                    <div className="flex items-center gap-4">
+                      <Separator className="flex-1 bg-white/10" />
+                      <span className="text-sm text-slate-500">or</span>
+                      <Separator className="flex-1 bg-white/10" />
                     </div>
                     
                     <Button
                       type="button"
                       variant="ghost"
-                      className="w-full text-purple-700 hover:text-purple-800 hover:bg-purple-100/50 font-semibold rounded-xl transition-all duration-300"
+                      className="w-full text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300"
                       onClick={() => setIsLogin(!isLogin)}
                     >
                       {isLogin 
-                        ? "New here? Join the community! 🎊" 
-                        : "Already part of the family? Welcome back! 💖"
+                        ? "Don't have an account? Sign up" 
+                        : "Already have an account? Sign in"
                       }
                     </Button>
                   </CardContent>
@@ -285,38 +305,32 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Enhanced Footer */}
-      <footer className="bg-white/10 backdrop-blur-md border-t border-white/20 py-12 relative z-10">
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-4">
-            <div className="flex justify-center space-x-2 mb-4">
-              <Heart className="h-6 w-6 text-red-400 animate-pulse" />
-              <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
-              <Star className="h-6 w-6 text-blue-300 animate-pulse" />
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/5">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            {/* Brand */}
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="Daily Voice Journal" className="h-8 w-8 rounded-lg" />
+              <span className="text-slate-400 text-sm">Built for mindful journaling</span>
             </div>
-            <p className="text-white/90 text-lg font-medium">
-              Built with 💖 for mindful journaling and personal growth
-            </p>
-            <p className="text-white/70 text-sm">
-              Join thousands of users on their journey to self-discovery ✨
-            </p>
-            
-            {/* Contact Details */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 pt-4 mt-4 border-t border-white/20">
+
+            {/* Contact */}
+            <div className="flex items-center gap-6">
               <a 
                 href="mailto:info@budfi.in" 
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300"
+                className="flex items-center gap-2 text-slate-400 hover:text-teal-400 transition-colors text-sm"
               >
-                <Mail className="h-5 w-5" />
+                <Mail className="h-4 w-4" />
                 <span>info@budfi.in</span>
               </a>
               <a 
                 href="https://wa.me/919439044619" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300"
+                className="flex items-center gap-2 text-slate-400 hover:text-teal-400 transition-colors text-sm"
               >
-                <Phone className="h-5 w-5" />
+                <Phone className="h-4 w-4" />
                 <span>+91-9439044619</span>
               </a>
             </div>
