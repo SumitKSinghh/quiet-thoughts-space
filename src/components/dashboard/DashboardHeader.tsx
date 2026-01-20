@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
   Plus, BookOpen, LogOut, User, Mic, Target, BarChart3, 
-  Search, Users, Brain, MessageCircle 
+  Search, Users, Brain, MessageCircle, Crown 
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useSubscription } from '@/hooks/useSubscription';
+import { PricingModal } from '@/components/PricingModal';
 
 interface DashboardHeaderProps {
   activeView: string;
@@ -20,6 +23,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onViewChange, 
   onCreateNew 
 }) => {
+  const { isPremium, refetch } = useSubscription();
+  const [showPricing, setShowPricing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -98,7 +103,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
             <div className="h-6 w-px bg-slate-200 mx-2" />
 
-            {/* AI Features */}
+            {/* AI Features - Premium */}
             <div className="flex items-center gap-1 bg-gradient-to-r from-violet-100 to-purple-100 rounded-lg p-1">
               {aiItems.map((item) => (
                 <Button
@@ -107,7 +112,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "transition-all font-medium",
+                    "transition-all font-medium relative",
                     activeView === item.id
                       ? "bg-white shadow-sm text-violet-700"
                       : "text-violet-500 hover:text-violet-700 hover:bg-white/50"
@@ -115,9 +120,29 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 >
                   <item.icon className="h-4 w-4 sm:mr-1.5" />
                   <span className="hidden md:inline">{item.label}</span>
+                  {!isPremium && (
+                    <Crown className="h-3 w-3 text-amber-500 absolute -top-1 -right-1" />
+                  )}
                 </Button>
               ))}
             </div>
+
+            {/* Premium Badge / Upgrade Button */}
+            {isPremium ? (
+              <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white border-0 ml-2">
+                <Crown className="h-3 w-3 mr-1" />
+                Premium
+              </Badge>
+            ) : (
+              <Button
+                onClick={() => setShowPricing(true)}
+                size="sm"
+                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white ml-2"
+              >
+                <Crown className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Upgrade</span>
+              </Button>
+            )}
 
             <div className="h-6 w-px bg-slate-200 mx-2" />
 
@@ -163,6 +188,12 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </nav>
         </div>
       </div>
+
+      <PricingModal 
+        open={showPricing} 
+        onOpenChange={setShowPricing}
+        onSuccess={refetch}
+      />
     </header>
   );
 };

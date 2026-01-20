@@ -394,6 +394,51 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          ends_at: string | null
+          id: string
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          razorpay_payment_id: string | null
+          razorpay_subscription_id: string | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          ends_at?: string | null
+          id?: string
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          razorpay_payment_id?: string | null
+          razorpay_subscription_id?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          ends_at?: string | null
+          id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          razorpay_payment_id?: string | null
+          razorpay_subscription_id?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       todos: {
         Row: {
           completed: boolean
@@ -482,11 +527,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_active_subscription: {
+        Args: { check_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       journal_type: "gratitude" | "fitness" | "dreams" | "daily"
       mood_type: "excellent" | "good" | "neutral" | "bad" | "terrible"
+      subscription_plan: "monthly" | "yearly"
+      subscription_status: "active" | "cancelled" | "expired" | "pending"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -616,6 +666,8 @@ export const Constants = {
     Enums: {
       journal_type: ["gratitude", "fitness", "dreams", "daily"],
       mood_type: ["excellent", "good", "neutral", "bad", "terrible"],
+      subscription_plan: ["monthly", "yearly"],
+      subscription_status: ["active", "cancelled", "expired", "pending"],
     },
   },
 } as const

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import CommunityFeed from "@/components/CommunityFeed";
+import { PremiumGate } from "@/components/PremiumGate";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -81,7 +82,9 @@ const Community = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <CommunityFeed />
+        <PremiumGate feature="Community">
+          <CommunityFeed />
+        </PremiumGate>
       </main>
     </div>
   );

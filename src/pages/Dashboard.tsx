@@ -21,6 +21,7 @@ import MoodInsights from '@/components/MoodInsights';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import AIChatPanel from '@/components/AIChatPanel';
 import FrequencySidebar from '@/components/FrequencySidebar';
+import { PremiumGate } from '@/components/PremiumGate';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -351,11 +352,15 @@ const Dashboard = () => {
         )}
         
         {activeView === 'ai-insights' && (
-          <AIInsightsPanel />
+          <PremiumGate feature="AI Insights">
+            <AIInsightsPanel />
+          </PremiumGate>
         )}
         
         {activeView === 'ai-chat' && (
-          <AIChatPanel />
+          <PremiumGate feature="AI Chat">
+            <AIChatPanel />
+          </PremiumGate>
         )}
       </main>
 
