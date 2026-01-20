@@ -139,6 +139,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      {/* Back to Dashboard button for logged in users */}
+      {user && (
+        <div className="absolute top-4 left-4 z-20">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/dashboard')}
+            className="text-slate-400 hover:text-white hover:bg-white/10 gap-2"
+          >
+            <ArrowRight className="h-4 w-4 rotate-180" />
+            Back to Dashboard
+          </Button>
+        </div>
+      )}
+
       {/* Ambient background effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl"></div>
