@@ -9,6 +9,9 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
+import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Refund from "./pages/Refund";
 import NotFound from "./pages/NotFound";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 
@@ -27,6 +30,9 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/community" element={<Community />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/refund" element={<Refund />} />
           <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
