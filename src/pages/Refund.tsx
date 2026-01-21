@@ -28,6 +28,7 @@ const Refund = () => {
             <span className="text-xl font-semibold text-white">Daily Voice Journal</span>
           </Link>
           <nav className="flex items-center gap-6">
+            <Link to="/" className="text-slate-400 hover:text-white transition-colors text-sm">Home</Link>
             <Link to="/contact" className="text-slate-400 hover:text-white transition-colors text-sm">Contact</Link>
             <Link to="/privacy" className="text-slate-400 hover:text-white transition-colors text-sm">Privacy</Link>
           </nav>
