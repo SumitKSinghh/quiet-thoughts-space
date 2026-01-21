@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -327,6 +327,19 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <img src={logo} alt="Daily Voice Journal" className="h-8 w-8 rounded-lg" />
               <span className="text-slate-400 text-sm">Built for mindful journaling</span>
+            </div>
+
+            {/* Page Links */}
+            <div className="flex items-center gap-6">
+              <Link to="/contact" className="text-slate-400 hover:text-teal-400 transition-colors text-sm">
+                Contact Us
+              </Link>
+              <Link to="/privacy" className="text-slate-400 hover:text-teal-400 transition-colors text-sm">
+                Privacy Policy
+              </Link>
+              <Link to="/refund" className="text-slate-400 hover:text-teal-400 transition-colors text-sm">
+                Refund Policy
+              </Link>
             </div>
 
             {/* Contact */}
