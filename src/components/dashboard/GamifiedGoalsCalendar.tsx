@@ -12,7 +12,11 @@ interface MonthData {
   isUnlocked: boolean;
 }
 
-const GamifiedGoalsCalendar: React.FC = () => {
+interface GamifiedGoalsCalendarProps {
+  userId: string;
+}
+
+const GamifiedGoalsCalendar: React.FC<GamifiedGoalsCalendarProps> = ({ userId }) => {
   const [monthsData, setMonthsData] = useState<MonthData[]>([]);
   const [selectedYear] = useState(new Date().getFullYear());
   const [isLoading, setIsLoading] = useState(true);
@@ -21,13 +25,10 @@ const GamifiedGoalsCalendar: React.FC = () => {
 
   useEffect(() => {
     loadYearData();
-  }, [selectedYear]);
+  }, [selectedYear, userId]);
 
   const loadYearData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const yearStart = startOfYear(new Date(selectedYear, 0, 1));
       const yearEnd = endOfYear(new Date(selectedYear, 0, 1));
       const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
@@ -35,7 +36,7 @@ const GamifiedGoalsCalendar: React.FC = () => {
       const { data: journals, error } = await supabase
         .from('journals')
         .select('entry_date')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .gte('entry_date', format(yearStart, 'yyyy-MM-dd'))
         .lte('entry_date', format(yearEnd, 'yyyy-MM-dd'));
 
@@ -59,7 +60,7 @@ const GamifiedGoalsCalendar: React.FC = () => {
         return {
           month,
           journalCount: entriesInMonth,
-          goalProgress: Math.min((entriesInMonth / 15) * 100, 100), // 15 entries = 100%
+          goalProgress: Math.min((entriesInMonth / 15) * 100, 100),
           isCurrentMonth: isSameMonth(month, currentMonth),
           isUnlocked: isCurrentOrPast,
         };
@@ -67,7 +68,7 @@ const GamifiedGoalsCalendar: React.FC = () => {
 
       setMonthsData(data);
       setTotalEntries(total);
-      setCurrentStreak(Math.min(total, 30)); // Simplified streak
+      setCurrentStreak(Math.min(total, 30));
     } catch (error) {
       console.error('Error loading year data:', error);
     } finally {
@@ -148,7 +149,6 @@ const GamifiedGoalsCalendar: React.FC = () => {
                 data.isCurrentMonth && "ring-2 ring-emerald-400 ring-offset-2"
               )}
             >
-              {/* Month Card */}
               <div
                 className={cn(
                   "rounded-2xl p-3 h-32 flex flex-col justify-between relative overflow-hidden shadow-lg",
@@ -157,21 +157,18 @@ const GamifiedGoalsCalendar: React.FC = () => {
                   !data.isUnlocked && "opacity-70"
                 )}
               >
-                {/* Lock Icon for Future Months */}
                 {!data.isUnlocked && (
                   <div className="absolute top-2 right-2">
                     <Lock className="h-4 w-4 text-slate-500" />
                   </div>
                 )}
 
-                {/* Trophy for 100% */}
                 {data.goalProgress >= 100 && (
                   <div className="absolute top-2 right-2">
                     <Trophy className="h-4 w-4 text-yellow-300 drop-shadow" />
                   </div>
                 )}
 
-                {/* Month Name */}
                 <div className="text-center">
                   <div className="text-white font-bold text-sm drop-shadow">
                     {format(data.month, 'MMM')}
@@ -181,7 +178,6 @@ const GamifiedGoalsCalendar: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Progress Fill Effect */}
                 <div className="absolute bottom-0 left-0 right-0 bg-white/20 backdrop-blur-sm rounded-b-2xl">
                   <div
                     className="h-1 bg-white/60 rounded-full mx-2 mb-2 transition-all duration-500"
@@ -189,7 +185,6 @@ const GamifiedGoalsCalendar: React.FC = () => {
                   />
                 </div>
 
-                {/* Entry Count */}
                 <div className="text-center">
                   <div className="bg-white/30 backdrop-blur-sm rounded-lg px-3 py-1 inline-block">
                     <span className="text-white font-bold text-lg drop-shadow">
@@ -198,7 +193,6 @@ const GamifiedGoalsCalendar: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Current Month Indicator */}
                 {data.isCurrentMonth && (
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
                     <ChevronRight className="h-4 w-4 text-emerald-500 rotate-90" />
@@ -206,7 +200,6 @@ const GamifiedGoalsCalendar: React.FC = () => {
                 )}
               </div>
 
-              {/* Hover Tooltip */}
               <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
                 <div className="bg-slate-800 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-xl">
                   {data.journalCount} entries • {Math.round(data.goalProgress)}% complete

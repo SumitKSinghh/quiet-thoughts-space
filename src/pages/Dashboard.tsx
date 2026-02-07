@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,17 @@ import GamifiedGoalsCalendar from '@/components/dashboard/GamifiedGoalsCalendar'
 import CompactCalendar from '@/components/dashboard/CompactCalendar';
 import CompactTodoList from '@/components/dashboard/CompactTodoList';
 
-// Feature Components
-import JournalEditorSimple from '@/components/JournalEditorSimple';
-import JournalList from '@/components/JournalList';
-import { JournalSearch } from '@/components/JournalSearch';
-import { JournalSearchResults } from '@/components/JournalSearchResults';
-import VoiceJournal from '@/components/VoiceJournal';
-import GoalTracker from '@/components/GoalTracker';
-import MoodInsights from '@/components/MoodInsights';
-import AIInsightsPanel from '@/components/AIInsightsPanel';
-import AIChatPanel from '@/components/AIChatPanel';
+// Feature Components - lazy loaded for better code splitting
+const JournalEditorSimple = React.lazy(() => import('@/components/JournalEditorSimple'));
+const JournalList = React.lazy(() => import('@/components/JournalList'));
+const JournalSearch = React.lazy(() => import('@/components/JournalSearch').then(m => ({ default: m.JournalSearch })));
+const JournalSearchResults = React.lazy(() => import('@/components/JournalSearchResults').then(m => ({ default: m.JournalSearchResults })));
+const VoiceJournal = React.lazy(() => import('@/components/VoiceJournal'));
+const GoalTracker = React.lazy(() => import('@/components/GoalTracker'));
+const MoodInsights = React.lazy(() => import('@/components/MoodInsights'));
+const AIInsightsPanel = React.lazy(() => import('@/components/AIInsightsPanel'));
+const AIChatPanel = React.lazy(() => import('@/components/AIChatPanel'));
+
 import FrequencySidebar from '@/components/FrequencySidebar';
 import { PremiumGate } from '@/components/PremiumGate';
 
@@ -37,6 +38,7 @@ const Dashboard = () => {
   const [allJournals, setAllJournals] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -61,32 +63,35 @@ const Dashboard = () => {
           }
           return;
         }
+
+        const currentUserId = session.user.id;
+        if (isMounted) setUserId(currentUserId);
         
-        const { data: journals, error: journalsError } = await supabase
-          .from('journals')
-          .select('id, title, content, entry_date, mood, created_at')
-          .eq('user_id', session.user.id)
-          .order('entry_date', { ascending: false });
-
-        if (journalsError) {
-          console.error('Error loading journals:', journalsError);
-        }
-
-        let smartTags: any[] = [];
-        if (journals && journals.length > 0) {
-          const { data: tagsData } = await supabase
+        // Fetch journals and smart tags in parallel
+        const [journalsRes, tagsRes] = await Promise.all([
+          supabase
+            .from('journals')
+            .select('id, title, content, entry_date, mood, created_at')
+            .eq('user_id', currentUserId)
+            .order('entry_date', { ascending: false }),
+          supabase
             .from('journal_smart_tags')
             .select('journal_id, tag_type, tag_value, confidence_score')
-            .eq('user_id', session.user.id);
-          
-          smartTags = tagsData || [];
+            .eq('user_id', currentUserId)
+        ]);
+
+        if (journalsRes.error) {
+          console.error('Error loading journals:', journalsRes.error);
         }
 
         if (isMounted) {
-          const journalsWithTags = journals?.map(journal => ({
+          const journals = journalsRes.data || [];
+          const smartTags = tagsRes.data || [];
+
+          const journalsWithTags = journals.map(journal => ({
             ...journal,
             smart_tags: smartTags.filter(tag => tag.journal_id === journal.id)
-          })) || [];
+          }));
 
           setAllJournals(journalsWithTags);
           setSearchResults(journalsWithTags);
@@ -164,6 +169,9 @@ const Dashboard = () => {
     setActiveView(view as ViewType);
   };
 
+  // Memoize recent journals to avoid recalculation
+  const recentJournals = useMemo(() => allJournals.slice(0, 3), [allJournals]);
+
   // Loading Screen
   if (isLoading) {
     return (
@@ -213,6 +221,12 @@ const Dashboard = () => {
     );
   }
 
+  const LazyFallback = (
+    <div className="flex items-center justify-center py-12">
+      <div className="animate-pulse text-slate-400">Loading...</div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <DashboardHeader 
@@ -226,7 +240,7 @@ const Dashboard = () => {
         {activeView === 'home' && (
           <>
             {/* Quick Stats */}
-            <QuickStatsGrid />
+            <QuickStatsGrid userId={userId!} />
 
             {/* Main Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -236,12 +250,12 @@ const Dashboard = () => {
                   selectedDate={selectedDate} 
                   onDateSelect={setSelectedDate} 
                 />
-                <CompactTodoList />
+                <CompactTodoList userId={userId!} />
               </div>
 
               {/* Right Column - Gamified Goals */}
               <div className="lg:col-span-3">
-                <GamifiedGoalsCalendar />
+                <GamifiedGoalsCalendar userId={userId!} />
 
                 {/* Recent Entries Preview */}
                 <div className="mt-6 bg-white rounded-2xl shadow-lg border border-slate-100 p-6">
@@ -270,7 +284,7 @@ const Dashboard = () => {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {allJournals.slice(0, 3).map((journal) => (
+                      {recentJournals.map((journal) => (
                         <div
                           key={journal.id}
                           onClick={() => handleEditJournal(journal)}
@@ -311,56 +325,72 @@ const Dashboard = () => {
 
         {/* Other Views */}
         {activeView === 'list' && (
-          <JournalList
-            selectedDate={selectedDate}
-            onEditJournal={handleEditJournal}
-          />
+          <React.Suspense fallback={LazyFallback}>
+            <JournalList
+              selectedDate={selectedDate}
+              onEditJournal={handleEditJournal}
+            />
+          </React.Suspense>
         )}
 
         {activeView === 'search' && (
-          <div className="space-y-6">
-            <JournalSearch
-              onResults={handleSearchResults}
-              allEntries={allJournals}
-            />
-            <JournalSearchResults
-              results={searchResults}
-              onSelectJournal={handleSelectSearchResult}
-            />
-          </div>
+          <React.Suspense fallback={LazyFallback}>
+            <div className="space-y-6">
+              <JournalSearch
+                onResults={handleSearchResults}
+                allEntries={allJournals}
+              />
+              <JournalSearchResults
+                results={searchResults}
+                onSelectJournal={handleSelectSearchResult}
+              />
+            </div>
+          </React.Suspense>
         )}
         
         {(activeView === 'create' || activeView === 'edit') && (
-          <JournalEditorSimple
-            journal={selectedJournal}
-            selectedDate={selectedDate}
-            onBack={handleBackToHome}
-            onSave={handleBackToHome}
-          />
+          <React.Suspense fallback={LazyFallback}>
+            <JournalEditorSimple
+              journal={selectedJournal}
+              selectedDate={selectedDate}
+              onBack={handleBackToHome}
+              onSave={handleBackToHome}
+            />
+          </React.Suspense>
         )}
         
         {activeView === 'voice' && (
-          <VoiceJournal onSave={handleBackToHome} />
+          <React.Suspense fallback={LazyFallback}>
+            <VoiceJournal onSave={handleBackToHome} />
+          </React.Suspense>
         )}
         
         {activeView === 'goals' && (
-          <GoalTracker />
+          <React.Suspense fallback={LazyFallback}>
+            <GoalTracker />
+          </React.Suspense>
         )}
         
         {activeView === 'insights' && (
-          <MoodInsights />
+          <React.Suspense fallback={LazyFallback}>
+            <MoodInsights />
+          </React.Suspense>
         )}
         
         {activeView === 'ai-insights' && (
-          <PremiumGate feature="AI Insights">
-            <AIInsightsPanel />
-          </PremiumGate>
+          <React.Suspense fallback={LazyFallback}>
+            <PremiumGate feature="AI Insights">
+              <AIInsightsPanel />
+            </PremiumGate>
+          </React.Suspense>
         )}
         
         {activeView === 'ai-chat' && (
-          <PremiumGate feature="AI Chat">
-            <AIChatPanel />
-          </PremiumGate>
+          <React.Suspense fallback={LazyFallback}>
+            <PremiumGate feature="AI Chat">
+              <AIChatPanel />
+            </PremiumGate>
+          </React.Suspense>
         )}
       </main>
 

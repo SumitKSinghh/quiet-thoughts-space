@@ -19,17 +19,9 @@ const Pricing = () => {
   const { isPremium, loading: isLoading } = useSubscription();
 
   useEffect(() => {
-    // Detect user's region
-    const detectRegion = async () => {
-      try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        setIsIndian(data.country_code === 'IN');
-      } catch {
-        setIsIndian(true);
-      }
-    };
-    detectRegion();
+    // Detect user's region using timezone (instant, no network call)
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setIsIndian(tz.includes('Kolkata') || tz.includes('Calcutta') || tz.includes('Asia/Kolkata'));
 
     // Check auth status
     supabase.auth.getSession().then(({ data: { session } }) => {

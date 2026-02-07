@@ -39,7 +39,11 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, subtitle, gradi
   </div>
 );
 
-const QuickStatsGrid: React.FC = () => {
+interface QuickStatsGridProps {
+  userId: string;
+}
+
+const QuickStatsGrid: React.FC<QuickStatsGridProps> = ({ userId }) => {
   const [stats, setStats] = useState({
     entriesThisMonth: 0,
     currentStreak: 0,
@@ -52,44 +56,41 @@ const QuickStatsGrid: React.FC = () => {
 
   useEffect(() => {
     loadStats();
-  }, []);
+  }, [userId]);
 
   const loadStats = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const today = new Date();
       const monthStart = startOfMonth(today);
       const monthEnd = endOfMonth(today);
 
-      // Parallel queries for better performance
+      // Parallel queries for better performance — no extra getUser() call
       const [monthlyRes, totalRes, recentRes, goalsRes, todayRes] = await Promise.all([
         supabase
           .from('journals')
           .select('id')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .gte('entry_date', format(monthStart, 'yyyy-MM-dd'))
           .lte('entry_date', format(monthEnd, 'yyyy-MM-dd')),
         supabase
           .from('journals')
           .select('id')
-          .eq('user_id', user.id),
+          .eq('user_id', userId),
         supabase
           .from('journals')
           .select('entry_date, mood')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('entry_date', { ascending: false })
           .limit(30),
         supabase
           .from('goals')
           .select('id')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq('is_completed', false),
         supabase
           .from('journals')
           .select('id')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq('entry_date', format(today, 'yyyy-MM-dd'))
       ]);
 
