@@ -3,7 +3,7 @@ import { CheckCircle2, Circle, Plus, Star, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
-import { format, isToday } from 'date-fns';
+import { isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import TodoModal from '@/components/TodoModal';
 
@@ -15,7 +15,11 @@ interface Todo {
   important: boolean;
 }
 
-const CompactTodoList: React.FC = () => {
+interface CompactTodoListProps {
+  userId: string;
+}
+
+const CompactTodoList: React.FC<CompactTodoListProps> = ({ userId }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,17 +27,14 @@ const CompactTodoList: React.FC = () => {
 
   useEffect(() => {
     loadTodos();
-  }, []);
+  }, [userId]);
 
   const loadTodos = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data, error } = await supabase
         .from('todos')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('completed', false)
         .order('important', { ascending: false })
         .order('created_at', { ascending: false })
