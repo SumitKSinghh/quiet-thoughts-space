@@ -27,6 +27,8 @@ import { PremiumGate } from '@/components/PremiumGate';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+import { format } from 'date-fns';
+
 type ViewType = 'home' | 'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search' | 'ai-insights' | 'ai-chat';
 
 const Dashboard = () => {
@@ -39,6 +41,7 @@ const Dashboard = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [authError, setAuthError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -166,6 +169,7 @@ const Dashboard = () => {
   };
 
   const handleViewChange = (view: string) => {
+    if (view !== 'list') setSelectedMonth(null);
     setActiveView(view as ViewType);
   };
 
@@ -255,7 +259,13 @@ const Dashboard = () => {
 
               {/* Right Column - Gamified Goals */}
               <div className="lg:col-span-3">
-                <GamifiedGoalsCalendar userId={userId!} />
+                <GamifiedGoalsCalendar 
+                  userId={userId!} 
+                  onMonthClick={(month) => {
+                    setSelectedMonth(format(month, 'MMMM yyyy'));
+                    setActiveView('list');
+                  }}
+                />
 
                 {/* Recent Entries Preview */}
                 <div className="mt-6 bg-white rounded-2xl shadow-lg border border-slate-100 p-6">
@@ -329,6 +339,7 @@ const Dashboard = () => {
             <JournalList
               selectedDate={selectedDate}
               onEditJournal={handleEditJournal}
+              initialMonth={selectedMonth}
             />
           </React.Suspense>
         )}

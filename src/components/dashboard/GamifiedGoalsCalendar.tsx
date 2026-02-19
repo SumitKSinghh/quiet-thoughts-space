@@ -14,9 +14,10 @@ interface MonthData {
 
 interface GamifiedGoalsCalendarProps {
   userId: string;
+  onMonthClick?: (month: Date) => void;
 }
 
-const GamifiedGoalsCalendar: React.FC<GamifiedGoalsCalendarProps> = ({ userId }) => {
+const GamifiedGoalsCalendar: React.FC<GamifiedGoalsCalendarProps> = ({ userId, onMonthClick }) => {
   const [monthsData, setMonthsData] = useState<MonthData[]>([]);
   const [selectedYear] = useState(new Date().getFullYear());
   const [isLoading, setIsLoading] = useState(true);
@@ -144,6 +145,7 @@ const GamifiedGoalsCalendar: React.FC<GamifiedGoalsCalendarProps> = ({ userId })
           {monthsData.map((data, index) => (
             <div
               key={index}
+              onClick={() => data.isUnlocked && onMonthClick?.(data.month)}
               className={cn(
                 "relative group cursor-pointer transition-all duration-300 hover:scale-105",
                 data.isCurrentMonth && "ring-2 ring-emerald-400 ring-offset-2"
