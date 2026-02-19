@@ -30,13 +30,14 @@ interface Journal {
 interface JournalListProps {
   selectedDate: Date;
   onEditJournal: (journal: Journal) => void;
+  initialMonth?: string | null;
 }
 
-const JournalList = ({ selectedDate, onEditJournal }: JournalListProps) => {
+const JournalList = ({ selectedDate, onEditJournal, initialMonth }: JournalListProps) => {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
-  const [fullViewMonth, setFullViewMonth] = useState<string | null>(null);
+  const [fullViewMonth, setFullViewMonth] = useState<string | null>(initialMonth ?? null);
   const { toast } = useToast();
   const currentDate = new Date();
 
