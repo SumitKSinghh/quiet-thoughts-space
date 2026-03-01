@@ -40,24 +40,6 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    // Defer loading the ElevenLabs widget until after initial render
-    const timer = setTimeout(() => {
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
-      script.async = true;
-      script.type = 'text/javascript';
-      document.body.appendChild(script);
-
-      return () => {
-        if (document.body.contains(script)) {
-          document.body.removeChild(script);
-        }
-      };
-    }, 3000); // Load after 3 seconds
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -372,9 +354,6 @@ const Index = () => {
         </div>
       </footer>
 
-      {/* ElevenLabs ConvAI Widget */}
-      {/* @ts-ignore */}
-      <elevenlabs-convai agent-id="agent_9901ka0em19jerm9qr2t8aj0w1vr"></elevenlabs-convai>
     </div>
   );
 };
