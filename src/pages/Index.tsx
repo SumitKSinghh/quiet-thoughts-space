@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Calendar, CheckSquare, Shield, Sparkles, Heart, Star, Zap, Mail, Phone, BookOpen, Target, TrendingUp, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getReadableAuthError, withAuthNetworkRetry } from '@/lib/authRetry';
 import logo from '@/assets/logo.png';
 
 const Index = () => {
@@ -47,10 +48,12 @@ const Index = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await withAuthNetworkRetry(() =>
+          supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
+        );
         
         if (error) throw error;
         
@@ -59,13 +62,15 @@ const Index = () => {
           description: "You've been successfully logged in.",
         });
       } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
+        const { data, error } = await withAuthNetworkRetry(() =>
+          supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+            },
+          })
+        );
         
         if (error) throw error;
         
@@ -82,10 +87,10 @@ const Index = () => {
           setIsLogin(true);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message,
+        description: getReadableAuthError(error),
         variant: "destructive",
       });
     } finally {
