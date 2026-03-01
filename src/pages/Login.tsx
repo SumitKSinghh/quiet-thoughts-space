@@ -10,6 +10,7 @@ import { BookOpen, ArrowRight, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
 import { useToast } from '@/hooks/use-toast';
+import { getReadableAuthError, withAuthNetworkRetry } from '@/lib/authRetry';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -36,10 +37,12 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await withAuthNetworkRetry(() =>
+          supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
+        );
         
         if (error) throw error;
         
@@ -50,13 +53,15 @@ const Login = () => {
         
         navigate('/dashboard');
       } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
+        const { data, error } = await withAuthNetworkRetry(() =>
+          supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+            },
+          })
+        );
         
         if (error) throw error;
         
@@ -79,10 +84,10 @@ const Login = () => {
           navigate('/dashboard');
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message,
+        description: getReadableAuthError(error),
         variant: "destructive",
       });
     } finally {
