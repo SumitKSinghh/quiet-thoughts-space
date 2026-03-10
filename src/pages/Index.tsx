@@ -22,6 +22,16 @@ const Index = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      const script = document.createElement('script');
+      script.src = 'https://elevenlabs.io/convai-widget/index.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
@@ -354,7 +364,9 @@ const Index = () => {
                 <Phone className="h-4 w-4" />
                 <span>+91-9439044619</span>
               </a>
-            </div>
+      {/* @ts-ignore */}
+      <elevenlabs-convai agent-id="agent_9901ka0em19jerm9qr2t8aj0w1vr"></elevenlabs-convai>
+    </div>
           </div>
         </div>
       </footer>
