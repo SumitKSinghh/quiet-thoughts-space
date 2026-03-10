@@ -364,7 +364,9 @@ const Index = () => {
                 <Phone className="h-4 w-4" />
                 <span>+91-9439044619</span>
               </a>
-            </div>
+      {/* @ts-ignore */}
+      <elevenlabs-convai agent-id="agent_9901ka0em19jerm9qr2t8aj0w1vr"></elevenlabs-convai>
+    </div>
           </div>
         </div>
       </footer>
