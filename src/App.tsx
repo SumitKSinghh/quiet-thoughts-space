@@ -53,6 +53,8 @@ const App = () => (
             <Route path="/refund" element={<Refund />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
