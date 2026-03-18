@@ -19,6 +19,8 @@ const Refund = lazy(() => import("./pages/Refund"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const GoogleAuthCallback = lazy(() => import("./pages/GoogleAuthCallback"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 const queryClient = new QueryClient();
 
