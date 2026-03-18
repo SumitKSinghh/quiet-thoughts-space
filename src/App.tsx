@@ -19,6 +19,8 @@ const Refund = lazy(() => import("./pages/Refund"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const GoogleAuthCallback = lazy(() => import("./pages/GoogleAuthCallback"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -51,6 +53,8 @@ const App = () => (
             <Route path="/refund" element={<Refund />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
