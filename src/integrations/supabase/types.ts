@@ -183,6 +183,45 @@ export type Database = {
         }
         Relationships: []
       }
+      hour_logs: {
+        Row: {
+          activity: string
+          category: string | null
+          created_at: string
+          hour_slot: number
+          id: string
+          log_date: string
+          notes: string | null
+          productivity_rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity: string
+          category?: string | null
+          created_at?: string
+          hour_slot: number
+          id?: string
+          log_date: string
+          notes?: string | null
+          productivity_rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity?: string
+          category?: string | null
+          created_at?: string
+          hour_slot?: number
+          id?: string
+          log_date?: string
+          notes?: string | null
+          productivity_rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_attachments: {
         Row: {
           created_at: string
