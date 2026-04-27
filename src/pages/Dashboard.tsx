@@ -20,6 +20,7 @@ const GoalTracker = React.lazy(() => import('@/components/GoalTracker'));
 const MoodInsights = React.lazy(() => import('@/components/MoodInsights'));
 const AIInsightsPanel = React.lazy(() => import('@/components/AIInsightsPanel'));
 const AIChatPanel = React.lazy(() => import('@/components/AIChatPanel'));
+const HourLogger = React.lazy(() => import('@/components/HourLogger'));
 
 import FrequencySidebar from '@/components/FrequencySidebar';
 import { PremiumGate } from '@/components/PremiumGate';
@@ -29,7 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 
 import { format } from 'date-fns';
 
-type ViewType = 'home' | 'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search' | 'ai-insights' | 'ai-chat';
+type ViewType = 'home' | 'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search' | 'ai-insights' | 'ai-chat' | 'hours';
 
 const Dashboard = () => {
   const [activeView, setActiveView] = useState<ViewType>('home');
@@ -401,6 +402,12 @@ const Dashboard = () => {
             <PremiumGate feature="AI Chat">
               <AIChatPanel />
             </PremiumGate>
+          </React.Suspense>
+        )}
+
+        {activeView === 'hours' && (
+          <React.Suspense fallback={LazyFallback}>
+            <HourLogger />
           </React.Suspense>
         )}
       </main>

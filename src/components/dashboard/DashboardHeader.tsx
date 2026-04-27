@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Plus, BookOpen, LogOut, User, Mic, Target, BarChart3, 
-  Search, Users, Brain, MessageCircle, Crown 
+  Search, Users, Brain, MessageCircle, Crown, Clock
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -41,6 +41,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const navItems = [
     { id: 'voice', icon: Mic, label: 'Voice' },
     { id: 'goals', icon: Target, label: 'Goals' },
+    { id: 'hours', icon: Clock, label: 'Hours' },
     { id: 'insights', icon: BarChart3, label: 'Mood' },
   ];
 
