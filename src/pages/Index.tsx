@@ -350,8 +350,10 @@ const Index = () => {
                 </form>
               </Card>
             </div>
+          </div>
         </div>
       </div>
+
 
       {/* FAQ / answer section */}
       <section className="relative z-10 container mx-auto px-4 pb-16" aria-labelledby="faq-heading">
