@@ -111,35 +111,59 @@ const Index = () => {
   const features = [
     {
       icon: BookOpen,
-      title: "Daily Journaling",
-      description: "Capture your thoughts with our beautiful editor",
+      title: "Write or speak it",
+      description: "Type an entry or record your voice — it transcribes itself.",
       gradient: "from-teal-500 to-cyan-500"
     },
     {
+      icon: Heart,
+      title: "Post it, if you want",
+      description: "Keep entries private, or share them with the community in one tap.",
+      gradient: "from-rose-500 to-pink-500"
+    },
+    {
       icon: Target,
-      title: "Goal Tracking",
-      description: "Set and achieve your personal milestones",
+      title: "Goals & hour logs",
+      description: "Track milestones and log how you spend each hour of the day.",
       gradient: "from-amber-500 to-orange-500"
     },
     {
       icon: Calendar,
-      title: "Smart Calendar",
-      description: "Organize your life with intuitive planning",
+      title: "Calendar & to-dos",
+      description: "Plan your days with a built-in calendar and task lists.",
       gradient: "from-indigo-500 to-purple-500"
-    },
-    {
-      icon: TrendingUp,
-      title: "AI Insights",
-      description: "Get personalized growth recommendations",
-      gradient: "from-emerald-500 to-teal-500"
     }
   ];
 
   const stats = [
-    { value: "10K+", label: "Active Users" },
-    { value: "50K+", label: "Journal Entries" },
-    { value: "99.9%", label: "Uptime" }
+    { value: "₹0", label: "Free forever" },
+    { value: "10K+", label: "Journalers" },
+    { value: "50K+", label: "Entries saved" }
   ];
+
+  const faqs = [
+    {
+      q: "Is Daily Voice Journal free to use?",
+      a: "Yes — it's free forever. Journaling, voice entries, goals, hour logging, calendar, to-dos and community sharing all cost nothing. Only AI Insights need a premium upgrade."
+    },
+    {
+      q: "What does \"Save it, Post it!\" mean?",
+      a: "Every entry is yours: save it privately, or post it to the community in one tap. You decide, entry by entry."
+    },
+    {
+      q: "Can I journal with my voice?",
+      a: "Yes. Speak your entry and it's transcribed to text automatically, so you can journal hands-free in under a minute."
+    },
+    {
+      q: "Is my journal private?",
+      a: "Yes. Entries are private by default and secured to your account. Nothing is published unless you choose to post it."
+    },
+    {
+      q: "What's included in premium?",
+      a: "Premium unlocks AI Insights — personalised pattern analysis across your journals, goals and hour logs. Everything else stays free."
+    }
+  ];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
