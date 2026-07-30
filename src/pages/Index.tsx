@@ -350,9 +350,33 @@ const Index = () => {
                 </form>
               </Card>
             </div>
-          </div>
         </div>
       </div>
+
+      {/* FAQ / answer section */}
+      <section className="relative z-10 container mx-auto px-4 pb-16" aria-labelledby="faq-heading">
+        <div className="max-w-3xl mx-auto">
+          <h2 id="faq-heading" className="text-2xl md:text-3xl font-bold text-white text-center mb-3">
+            Questions people ask about Daily Voice Journal
+          </h2>
+          <p className="text-slate-400 text-center mb-8">
+            Short answers, straight up. The platform is free to use forever.
+          </p>
+          <dl className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10"
+              >
+                <dt className="font-semibold text-white">{faq.q}</dt>
+                <dd className="text-slate-400 text-sm mt-2 leading-relaxed">{faq.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/5">
