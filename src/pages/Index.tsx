@@ -111,35 +111,59 @@ const Index = () => {
   const features = [
     {
       icon: BookOpen,
-      title: "Daily Journaling",
-      description: "Capture your thoughts with our beautiful editor",
+      title: "Write or speak it",
+      description: "Type an entry or record your voice — it transcribes itself.",
       gradient: "from-teal-500 to-cyan-500"
     },
     {
+      icon: Heart,
+      title: "Post it, if you want",
+      description: "Keep entries private, or share them with the community in one tap.",
+      gradient: "from-rose-500 to-pink-500"
+    },
+    {
       icon: Target,
-      title: "Goal Tracking",
-      description: "Set and achieve your personal milestones",
+      title: "Goals & hour logs",
+      description: "Track milestones and log how you spend each hour of the day.",
       gradient: "from-amber-500 to-orange-500"
     },
     {
       icon: Calendar,
-      title: "Smart Calendar",
-      description: "Organize your life with intuitive planning",
+      title: "Calendar & to-dos",
+      description: "Plan your days with a built-in calendar and task lists.",
       gradient: "from-indigo-500 to-purple-500"
-    },
-    {
-      icon: TrendingUp,
-      title: "AI Insights",
-      description: "Get personalized growth recommendations",
-      gradient: "from-emerald-500 to-teal-500"
     }
   ];
 
   const stats = [
-    { value: "10K+", label: "Active Users" },
-    { value: "50K+", label: "Journal Entries" },
-    { value: "99.9%", label: "Uptime" }
+    { value: "₹0", label: "Free forever" },
+    { value: "10K+", label: "Journalers" },
+    { value: "50K+", label: "Entries saved" }
   ];
+
+  const faqs = [
+    {
+      q: "Is Daily Voice Journal free to use?",
+      a: "Yes — it's free forever. Journaling, voice entries, goals, hour logging, calendar, to-dos and community sharing all cost nothing. Only AI Insights need a premium upgrade."
+    },
+    {
+      q: "What does \"Save it, Post it!\" mean?",
+      a: "Every entry is yours: save it privately, or post it to the community in one tap. You decide, entry by entry."
+    },
+    {
+      q: "Can I journal with my voice?",
+      a: "Yes. Speak your entry and it's transcribed to text automatically, so you can journal hands-free in under a minute."
+    },
+    {
+      q: "Is my journal private?",
+      a: "Yes. Entries are private by default and secured to your account. Nothing is published unless you choose to post it."
+    },
+    {
+      q: "What's included in premium?",
+      a: "Premium unlocks AI Insights — personalised pattern analysis across your journals, goals and hour logs. Everything else stays free."
+    }
+  ];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
@@ -187,18 +211,24 @@ const Index = () => {
 
             {/* Main heading */}
             <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-sm font-medium">
+                <Star className="h-3.5 w-3.5" />
+                Free forever — no card, no trial
+              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                <span className="text-white">Your Journey to</span>
-                <br />
                 <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">
-                  Self-Discovery
+                  Save it, Post it!
                 </span>
+                <br />
+                <span className="text-white">Your journal, your call.</span>
               </h1>
               <p className="text-lg text-slate-400 leading-relaxed max-w-lg">
-                Capture your thoughts, track your goals, and unlock powerful AI insights. 
-                Build lasting habits with our gamified journaling experience.
+                Daily Voice Journal is a free journaling app where you write or speak an entry,
+                keep it private, or post it to the community in one tap. Track goals, log your
+                hours and plan your days — free forever. Only AI Insights are premium.
               </p>
             </div>
+
 
             {/* Features Grid */}
             <div className="grid sm:grid-cols-2 gap-4">
@@ -242,14 +272,15 @@ const Index = () => {
                     <Sparkles className="h-6 w-6 text-white" />
                   </div>
                   <CardTitle className="text-2xl font-bold text-white">
-                    {isLogin ? 'Welcome Back' : 'Get Started'}
+                    {isLogin ? 'Welcome back' : 'Start free, forever'}
                   </CardTitle>
                   <CardDescription className="text-slate-400">
                     {isLogin 
-                      ? 'Continue your journaling journey' 
-                      : 'Create your account and start today'
+                      ? 'Sign in and pick up where you left off' 
+                      : 'Create a free account — no card required'
                     }
                   </CardDescription>
+
                 </CardHeader>
                 
                 <form onSubmit={handleSubmit}>
@@ -322,6 +353,32 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+
+      {/* FAQ / answer section */}
+      <section className="relative z-10 container mx-auto px-4 pb-16" aria-labelledby="faq-heading">
+        <div className="max-w-3xl mx-auto">
+          <h2 id="faq-heading" className="text-2xl md:text-3xl font-bold text-white text-center mb-3">
+            Questions people ask about Daily Voice Journal
+          </h2>
+          <p className="text-slate-400 text-center mb-8">
+            Short answers, straight up. The platform is free to use forever.
+          </p>
+          <dl className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10"
+              >
+                <dt className="font-semibold text-white">{faq.q}</dt>
+                <dd className="text-slate-400 text-sm mt-2 leading-relaxed">{faq.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/5">
