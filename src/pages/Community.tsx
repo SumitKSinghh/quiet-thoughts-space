@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import CommunityFeed from "@/components/CommunityFeed";
-import { PremiumGate } from "@/components/PremiumGate";
+
 
 const Community = () => {
   const navigate = useNavigate();
