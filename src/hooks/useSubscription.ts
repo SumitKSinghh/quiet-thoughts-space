@@ -16,13 +16,13 @@ export const useSubscription = () => {
   const [loading, setLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
 
-  const fetchSubscription = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+// The single demo account that always has premium access
+const DEMO_ACCOUNT_EMAIL = "ssingh2100.2100@gmail.com";
+
+export const useSubscriptionInternal = () => {};
+
+const fetchHelper = null;
+
 
       const { data, error } = await supabase
         .from("subscriptions")
