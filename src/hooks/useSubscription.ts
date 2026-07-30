@@ -11,10 +11,14 @@ interface Subscription {
   ends_at: string | null;
 }
 
+// The single demo account that always has full premium access
+const DEMO_ACCOUNT_EMAIL = "ssingh2100.2100@gmail.com";
+
 export const useSubscription = () => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
+  const [isDemoAccount, setIsDemoAccount] = useState(false);
 
   const fetchSubscription = async () => {
     try {
@@ -23,6 +27,10 @@ export const useSubscription = () => {
         setLoading(false);
         return;
       }
+
+      const isDemo =
+        (user.email || "").toLowerCase() === DEMO_ACCOUNT_EMAIL.toLowerCase();
+      setIsDemoAccount(isDemo);
 
       const { data, error } = await supabase
         .from("subscriptions")
@@ -39,7 +47,7 @@ export const useSubscription = () => {
       }
 
       setSubscription(data as Subscription | null);
-      setIsPremium(!!data);
+      setIsPremium(isDemo || !!data);
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -51,5 +59,5 @@ export const useSubscription = () => {
     fetchSubscription();
   }, []);
 
-  return { subscription, loading, isPremium, refetch: fetchSubscription };
+  return { subscription, loading, isPremium, isDemoAccount, refetch: fetchSubscription };
 };

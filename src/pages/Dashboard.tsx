@@ -399,11 +399,10 @@ const Dashboard = () => {
         
         {activeView === 'ai-chat' && (
           <React.Suspense fallback={LazyFallback}>
-            <PremiumGate feature="AI Chat">
-              <AIChatPanel />
-            </PremiumGate>
+            <AIChatPanel />
           </React.Suspense>
         )}
+
 
         {activeView === 'hours' && (
           <React.Suspense fallback={LazyFallback}>
