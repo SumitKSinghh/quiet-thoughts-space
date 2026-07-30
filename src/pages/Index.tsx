@@ -211,18 +211,24 @@ const Index = () => {
 
             {/* Main heading */}
             <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-sm font-medium">
+                <Star className="h-3.5 w-3.5" />
+                Free forever — no card, no trial
+              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                <span className="text-white">Your Journey to</span>
-                <br />
                 <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">
-                  Self-Discovery
+                  Save it, Post it!
                 </span>
+                <br />
+                <span className="text-white">Your journal, your call.</span>
               </h1>
               <p className="text-lg text-slate-400 leading-relaxed max-w-lg">
-                Capture your thoughts, track your goals, and unlock powerful AI insights. 
-                Build lasting habits with our gamified journaling experience.
+                Daily Voice Journal is a free journaling app where you write or speak an entry,
+                keep it private, or post it to the community in one tap. Track goals, log your
+                hours and plan your days — free forever. Only AI Insights are premium.
               </p>
             </div>
+
 
             {/* Features Grid */}
             <div className="grid sm:grid-cols-2 gap-4">
