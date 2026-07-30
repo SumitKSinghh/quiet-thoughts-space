@@ -272,14 +272,15 @@ const Index = () => {
                     <Sparkles className="h-6 w-6 text-white" />
                   </div>
                   <CardTitle className="text-2xl font-bold text-white">
-                    {isLogin ? 'Welcome Back' : 'Get Started'}
+                    {isLogin ? 'Welcome back' : 'Start free, forever'}
                   </CardTitle>
                   <CardDescription className="text-slate-400">
                     {isLogin 
-                      ? 'Continue your journaling journey' 
-                      : 'Create your account and start today'
+                      ? 'Sign in and pick up where you left off' 
+                      : 'Create a free account — no card required'
                     }
                   </CardDescription>
+
                 </CardHeader>
                 
                 <form onSubmit={handleSubmit}>
