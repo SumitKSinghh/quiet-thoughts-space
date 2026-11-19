@@ -525,6 +525,54 @@ export type Database = {
           },
         ]
       }
+      typing_test_results: {
+        Row: {
+          accuracy: number
+          characters_typed: number
+          created_at: string
+          duration_seconds: number
+          error_count: number
+          id: string
+          is_shared: boolean
+          passage_category: string
+          passage_text: string
+          passage_title: string
+          updated_at: string
+          user_id: string
+          words_per_minute: number
+        }
+        Insert: {
+          accuracy: number
+          characters_typed: number
+          created_at?: string
+          duration_seconds?: number
+          error_count: number
+          id?: string
+          is_shared?: boolean
+          passage_category: string
+          passage_text: string
+          passage_title: string
+          updated_at?: string
+          user_id: string
+          words_per_minute: number
+        }
+        Update: {
+          accuracy?: number
+          characters_typed?: number
+          created_at?: string
+          duration_seconds?: number
+          error_count?: number
+          id?: string
+          is_shared?: boolean
+          passage_category?: string
+          passage_text?: string
+          passage_title?: string
+          updated_at?: string
+          user_id?: string
+          words_per_minute?: number
+        }
+        Relationships: []
+      }
       user_insights: {
         Row: {
           analyzed_entries_count: number | null
