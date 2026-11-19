@@ -666,43 +666,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      create_typing_test_result: {
-        Args: {
-          p_accuracy: number
-          p_characters_typed: number
-          p_duration_seconds?: number
-          p_error_count: number
-          p_passage_category: string
-          p_passage_text: string
-          p_passage_title: string
-          p_words_per_minute: number
-        }
-        Returns: string
-      }
-      get_typing_test_results: {
-        Args: never
-        Returns: {
-          accuracy: number
-          characters_typed: number
-          created_at: string
-          duration_seconds: number
-          error_count: number
-          id: string
-          is_shared: boolean
-          passage_category: string
-          passage_text: string
-          passage_title: string
-          updated_at: string
-          user_id: string
-          words_per_minute: number
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "typing_test_results"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
       has_active_subscription: {
         Args: { check_user_id: string }
         Returns: boolean
@@ -712,10 +675,6 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
-        Returns: boolean
-      }
-      set_typing_test_shared: {
-        Args: { p_is_shared: boolean; p_result_id: string }
         Returns: boolean
       }
     }
