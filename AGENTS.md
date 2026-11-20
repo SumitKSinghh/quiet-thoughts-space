@@ -1,0 +1,1 @@
+Typing practice passages are bundled as app data and user scores live in Supabase with owner-controlled community sharing, keeping practice instant while RLS protects private results.

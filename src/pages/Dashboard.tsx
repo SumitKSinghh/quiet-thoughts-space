@@ -21,6 +21,7 @@ const MoodInsights = React.lazy(() => import('@/components/MoodInsights'));
 const AIInsightsPanel = React.lazy(() => import('@/components/AIInsightsPanel'));
 const AIChatPanel = React.lazy(() => import('@/components/AIChatPanel'));
 const HourLogger = React.lazy(() => import('@/components/HourLogger'));
+const TypingTest = React.lazy(() => import('@/components/TypingTest'));
 
 import FrequencySidebar from '@/components/FrequencySidebar';
 import { PremiumGate } from '@/components/PremiumGate';
@@ -30,7 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 
 import { format } from 'date-fns';
 
-type ViewType = 'home' | 'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search' | 'ai-insights' | 'ai-chat' | 'hours';
+type ViewType = 'home' | 'list' | 'create' | 'edit' | 'voice' | 'goals' | 'insights' | 'search' | 'ai-insights' | 'ai-chat' | 'hours' | 'improve';
 
 const Dashboard = () => {
   const [activeView, setActiveView] = useState<ViewType>('home');
@@ -407,6 +408,12 @@ const Dashboard = () => {
         {activeView === 'hours' && (
           <React.Suspense fallback={LazyFallback}>
             <HourLogger />
+          </React.Suspense>
+        )}
+
+        {activeView === 'improve' && (
+          <React.Suspense fallback={LazyFallback}>
+            {userId ? <TypingTest userId={userId} /> : LazyFallback}
           </React.Suspense>
         )}
       </main>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Plus, BookOpen, LogOut, User, Mic, Target, BarChart3, 
-  Search, Users, Brain, MessageCircle, Crown, Clock
+  Search, Users, Brain, MessageCircle, Crown, Clock, Keyboard
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -42,6 +42,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     { id: 'voice', icon: Mic, label: 'Voice' },
     { id: 'goals', icon: Target, label: 'Goals' },
     { id: 'hours', icon: Clock, label: 'Hours' },
+    { id: 'improve', icon: Keyboard, label: 'Improve' },
     { id: 'insights', icon: BarChart3, label: 'Mood' },
   ];
 

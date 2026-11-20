@@ -1,3 +1,3 @@
-- [ ] Build “Let’s Improve” typing test: one-minute timed run with mixed passages sourced from the uploaded DOCX, WPM/accuracy score card, and saved attempts.
-- [ ] Let users optionally publish completed typing scores to the existing community feed.
+- [x] Build “Let’s Improve” typing test: one-minute timed run with mixed passages sourced from the uploaded DOCX, WPM/accuracy score card, and saved attempts.
+- [x] Let users optionally publish completed typing scores to the existing community feed.
 - [ ] Verify the typing flow, community sharing, build status, and commit the finished changes.

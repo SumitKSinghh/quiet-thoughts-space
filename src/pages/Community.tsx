@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import CommunityFeed from "@/components/CommunityFeed";
+import SharedTypingResults from "@/components/SharedTypingResults";
 
 
 const Community = () => {
@@ -82,6 +83,7 @@ const Community = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <SharedTypingResults />
         <CommunityFeed />
       </main>
 
