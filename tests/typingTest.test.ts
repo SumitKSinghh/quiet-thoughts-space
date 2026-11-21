@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import {
   calculateTypingScore,
   TYPING_TEST_DURATION_SECONDS,
-} from "./typingTest";
-import { createMixedPassage, TYPING_PASSAGES } from "./typingTestPassages";
+} from "../src/lib/typingTest";
+import { createMixedPassage, TYPING_PASSAGES } from "../src/lib/typingTestPassages";
 
 describe("one-minute typing test", () => {
   it("uses the required 60-second duration", () => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Award,
   Check,
@@ -281,7 +281,6 @@ const TypingTest = ({ userId }: TypingTestProps) => {
                   : "Start the timer, then type the passage before time runs out."}
               </p>
               <Button onClick={startTest} className="shrink-0 gap-2">
-                {testState === "finished" ? <ArrowClockwise className="h-4 w-4" /> : <Keyboard className="h-4 w-4" />}
                 {testState === "finished" ? <RotateCcw className="h-4 w-4" /> : <Keyboard className="h-4 w-4" />}
                 {testState === "finished" ? "Try a new mix" : "Start typing test"}
               </Button>
@@ -368,7 +367,7 @@ const TypingTest = ({ userId }: TypingTestProps) => {
   );
 };
 
-const ScoreMetric = ({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) => (
+const ScoreMetric = ({ label, value, icon }: { label: string; value: string | number; icon: ReactNode }) => (
   <div className="min-w-0 border-l-2 border-primary/30 pl-3">
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
       {icon}

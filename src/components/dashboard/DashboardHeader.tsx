@@ -88,6 +88,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 <Button
                   key={item.id}
                   onClick={() => onViewChange(item.id)}
+                  aria-label={item.id === 'improve' ? "Let's Improve" : undefined}
+                  title={item.id === 'improve' ? "Let's Improve" : undefined}
                   variant="ghost"
                   size="sm"
                   className={cn(
@@ -98,7 +100,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   )}
                 >
                   <item.icon className="h-4 w-4 sm:mr-1.5" />
-                  <span className="hidden sm:inline">{item.label}</span>
+                  <span className={item.id === 'improve' ? "hidden xl:inline" : "hidden sm:inline"}>{item.label}</span>
                 </Button>
               ))}
             </div>

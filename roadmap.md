@@ -1,3 +1,5 @@
 - [x] Build “Let’s Improve” typing test: one-minute timed run with mixed passages sourced from the uploaded DOCX, WPM/accuracy score card, and saved attempts.
 - [x] Let users optionally publish completed typing scores to the existing community feed.
-- [ ] Verify the typing flow, community sharing, build status, and commit the finished changes.
+- [x] Verify score calculations and mixed passages with four focused tests; confirm the preview builds.
+- [x] Confirm the public app loads and the dashboard requires sign-in.
+- [ ] Complete a signed-in test save/share cycle (blocked: the connected Supabase project is external and provides no test session here).
