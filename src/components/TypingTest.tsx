@@ -234,14 +234,13 @@ const TypingTest = ({ userId }: TypingTestProps) => {
           <Progress value={testState === "running" ? typedProgress : 0} className="h-1.5" />
 
           <div
-            className="max-h-64 overflow-y-auto rounded-md border border-border bg-muted/20 p-4 font-mono text-base leading-8 sm:p-6 sm:text-lg"
+            className="w-full min-w-0 whitespace-pre-wrap break-words rounded-md border border-border bg-muted/20 p-4 font-mono text-base leading-8 sm:p-6 sm:text-lg"
             aria-label="Passage to type"
           >
             {passage.text.split("").map((character, index) => {
               const hasTypedCharacter = index < typedText.length;
               const isCorrect = typedText[index] === character;
               const isCurrentCharacter = index === typedText.length && testState === "running";
-              const displayCharacter = character === " " ? "\u00a0" : character;
               return (
                 <span
                   key={index}
@@ -249,7 +248,7 @@ const TypingTest = ({ userId }: TypingTestProps) => {
                     ? isCorrect ? "text-primary" : "bg-destructive/15 text-destructive"
                     : isCurrentCharacter ? "rounded-sm bg-accent text-foreground" : "text-muted-foreground/70"}
                 >
-                  {displayCharacter}
+                  {character}
                 </span>
               );
             })}

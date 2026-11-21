@@ -3,3 +3,4 @@
 - [x] Verify score calculations and mixed passages with four focused tests; confirm the preview builds.
 - [x] Confirm the public app loads and the dashboard requires sign-in.
 - [ ] Complete a signed-in test save/share cycle (blocked: the connected Supabase project is external and provides no test session here).
+- [ ] Show the typing passage as one complete, naturally wrapped paragraph without internal scrolling.
